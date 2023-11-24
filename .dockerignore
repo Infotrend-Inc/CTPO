@@ -1,0 +1,9 @@
+.git
+.gitignore
+README.md
+Makefile
+*.cmd
+*.log
+*.log.temp
+ubuntu22.04/
+BuildDetails/

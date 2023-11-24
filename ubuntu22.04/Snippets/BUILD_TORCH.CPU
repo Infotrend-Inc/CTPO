@@ -1,0 +1,72 @@
+##### Torch (using FFMpeg + OpenCV)
+
+ENV CTPO_TORCH=1.11
+RUN mkdir -p /usr/local/src \
+  && cd /usr/local/src \
+  && git clone --depth 1 --recurse-submodule --branch v${CTPO_TORCH} https://github.com/pytorch/pytorch.git  \
+  && cd /usr/local/src/pytorch \
+  && pip3 install -r requirements.txt \
+  && time env USE_CUDA=0 USE_CUDNN=0 USE_MKLDNN=1 USE_FFMPEG=1 USE_OPENCV=1 python3 ./setup.py bdist_wheel | tee /tmp/torch_config.txt \
+  && time pip3 install /usr/local/src/pytorch/dist/*.whl \
+  && cd /tmp \
+  && perl -i.bak -pe 'exit if m%^-- Configuring done%' torch_config.txt \
+  && sh -c "cmp --silent torch_config.txt torch_config.txt.bak && exit 1 || rm torch_config.txt.bak" \
+  && ldconfig \
+  && rm -rf /root/.cache/pip /usr/local/src/pytorch
+
+RUN python3 -c 'import torch; print(f"{torch.__version__}")' > /tmp/.torch_built
+
+ENV CTPO_TORCHVISION=0.12
+# setup.py options from https://github.com/pytorch/vision/blob/main/setup.py
+RUN mkdir -p /usr/local/src \
+  && cd /usr/local/src \
+  && git clone  --depth 1 --recurse-submodule --branch v${CTPO_TORCHVISION} https://github.com/pytorch/vision.git  \
+  && cd /usr/local/src/vision \
+  && time env FORCE_CUDA=0 TORCHVISION_USE_FFMPEG=1 python3 ./setup.py bdist_wheel | tee /tmp/torchvision_config.txt \
+  && time pip3 install /usr/local/src/vision/dist/*.whl \
+  && cd /tmp \
+  && perl -i.bak -pe 'exit if m%^running bdist_wheel%' torchvision_config.txt \
+  && sh -c "cmp --silent torchvision_config.txt torchvision_config.txt.bak && exit 1 || rm torchvision_config.txt.bak" \
+  && ldconfig \
+  && rm -rf /root/.cache/pip /usr/local/src/vision
+
+RUN python3 -c 'import torchvision; print(f"{torchvision.__version__}")' > /tmp/.torchvision_built
+
+ENV CTPO_TORCHAUDIO=0.11
+# setup.py options from https://github.com/pytorch/audio/blob/main/tools/setup_helpers/extension.py
+RUN mkdir -p /usr/local/src \
+  && cd /usr/local/src \
+  && git clone --depth 1 --recurse-submodule --branch v${CTPO_TORCHAUDIO} https://github.com/pytorch/audio.git \
+  && cd /usr/local/src/audio \
+  && time env USE_CUDA=0 USE_FFMPEG=1 python3 ./setup.py bdist_wheel | tee /tmp/torchaudio_config.txt \
+  && time pip3 install /usr/local/src/audio/dist/*.whl \
+  && cd /tmp \
+  && perl -i.bak -pe 'exit if m%^-- Configuring done%' torchaudio_config.txt \
+  && sh -c "cmp --silent torchaudio_config.txt torchaudio_config.txt.bak && exit 1 || rm torchaudio_config.txt.bak" \
+  && ldconfig \
+  && rm -rf /root/.cache/pip /usr/local/src/audio
+
+RUN python3 -c 'import torchaudio; print(f"{torchaudio.__version__}")' > /tmp/.torchaudio_built
+
+ENV CTPO_TORCHDATA=0.6.1
+RUN mkdir -p /usr/local/src \
+  && cd /usr/local/src \
+  && git clone --depth 1 --recurse-submodule --branch v${CTPO_TORCHDATA} https://github.com/pytorch/data.git  \
+  && cd /usr/local/src/data \
+  && pip3 install . | tee /tmp/torchdata_config.txt \
+  && rm -rf /root/.cache/pip /usr/local/src/data
+
+RUN python3 -c 'import torchdata; print(f"{torchdata.__version__}")' > /tmp/.torchdata_built
+
+ENV CTPO_TORCHTEXT=0.15.2
+RUN mkdir -p /usr/local/src \
+  && cd /usr/local/src \
+  && git clone --depth 1 --recurse-submodule --branch v${CTPO_TORCHTEXT} https://github.com/pytorch/text.git  \
+  && cd /usr/local/src/text \
+  && python3 setup.py clean install | tee /tmp/torchtext_config.txt \
+  && cd /tmp \
+  && perl -i.bak -pe 'exit if m%^-- Configuring done%' torchtext_config.txt \
+  && sh -c "cmp --silent torchtext_config.txt torchtext_config.txt.bak && exit 1 || rm torchtext_config.txt.bak" \
+  && rm -rf /root/.cache/pip /usr/local/src/text
+
+RUN python3 -c 'import torchtext; print(f"{torchtext.__version__}")' > /tmp/.torchtext_built

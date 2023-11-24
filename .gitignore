@@ -1,0 +1,16 @@
+# Generated files
+*.html
+*.list
+*.filelist
+*.sollist
+*.log
+*.log.temp
+*.testlog
+*.cmd
+
+# Backup files
+*.bak
+
+# Mac cache
+.DS_Store
+
