@@ -1,0 +1,10 @@
+  CTPO_FROM               : ubuntu:22.04
+docker buildx build --progress plain --platform linux/amd64  \
+  --build-arg CTPO_NUMPROC="32" \
+  --tag="pytorch_opencv:2.0.1_4.7.0-20231120" \
+  -f BuildDetails/20231120/pytorch_opencv-2.0.1_4.7.0-20231120/Dockerfile \
+  .
+
+
+***** TensorFlow configuration:
+No TensorFlow built
