@@ -103,9 +103,8 @@ CTPO_TORCHDATA="0.6.1"
 DFBH=./tools/Dockerfile_builder_helper.py
 BuildDetails=BuildDetails
 
-# Tag base for the docker image (easier for local builds)
-TAG_BASE=""
-TAG_RELEASE="infotrend/"
+# Tag base for the docker image release only
+TAG_RELEASE="infotrend/CTPO-"
 
 ##########
 
@@ -181,7 +180,7 @@ build_prep:
 	@$(eval CTPO_TAG=$(shell echo ${BTARG} | cut -d- -f 2))
 	@$(eval CTPO_FULLTAG=${CTPO_TAG}-${CTPO_RELEASE})
 	@$(eval CTPO_FULLNAME=${CTPO_NAME}-${CTPO_FULLTAG})
-	@echo ""; echo ""; echo "[*****] Build: ${TAG_BASE}${CTPO_NAME}:${CTPO_FULLTAG}";
+	@echo ""; echo ""; echo "[*****] Build: ${CTPO_NAME}:${CTPO_FULLTAG}";
 	@if [ ! -f ${DFBH} ]; then echo "ERROR: ${DFBH} does not exist"; exit 1; fi
 	@if [ ! -x ${DFBH} ]; then echo "ERROR: ${DFBH} is not executable"; exit 1; fi
 	@if [ ! -d ${BuildDetails} ]; then mkdir ${BuildDetails}; fi
@@ -232,7 +231,7 @@ actual_build:
 	@$(eval VAR_TF="${BUILD_DESTDIR}/TensorFlow--Details.txt")
 	@$(eval VAR_FF="${BUILD_DESTDIR}/FFmpeg--Details.txt")
 	@$(eval VAR_PT="${BUILD_DESTDIR}/PyTorch--Details.txt")
-	@${eval CTPO_DESTIMAGE="${TAG_BASE}${CTPO_NAME}:${CTPO_FULLTAG}"}
+	@${eval CTPO_DESTIMAGE="${CTPO_NAME}:${CTPO_FULLTAG}"}
 	@mkdir -p ${VAR_DD}
 	@echo ""
 	@echo "  CTPO_FROM               : ${CTPO_FROM}" | tee ${VAR_CV} | tee ${VAR_TF} | tee ${VAR_FF} | tee ${VAR_PT} | tee ${VAR_PY}
@@ -339,7 +338,7 @@ jupyter_build:
 	@$(eval JB=$(shell echo ${BTARG} | cut -d- -f 2)) 
 	@$(eval JT=$(shell echo ${BTARG} | cut -d- -f 3)) 
 	@$(eval JN="${JX}-${JB}${JN_MODE}:${JT}")
-	@cd Jupyter_build; docker build --build-arg JUPBC="${TAG_BASE}${JB}:${JT}-${CTPO_RELEASE}" --build-arg JUID=${JN_UID} --build-arg JGID=${JN_GID} -f Dockerfile${JN_MODE} --tag="${TAG_BASE}${JN}-${CTPO_RELEASE}" .
+	@cd Jupyter_build; docker build --build-arg JUPBC="${JB}:${JT}-${CTPO_RELEASE}" --build-arg JUID=${JN_UID} --build-arg JGID=${JN_GID} -f Dockerfile${JN_MODE} --tag="${JN}-${CTPO_RELEASE}" .
 
 
 ##### Various cleanup
@@ -355,3 +354,35 @@ buildclean:
 	@echo "Press Ctl+c within 5 seconds to cancel"
 	@for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""
 	rm -rf ${BuildDetails}/${CTPO_RELEASE}
+
+##### For Maintainers only
+docker_push:
+	PTARG="${TPO_BUILDALL} ${CTPO_BUILDALL}" TAG_PRE="${TAG_RELEASE}" make docker_push_core
+
+docker_push_core:
+	@array=(); \
+	for t in ${PTARG}; do \
+        tag="$$(echo $$t | perl -pe 's%\-([^\-]+)$$%\:$$1%')-20231120"; \
+		echo "** Checking for required image: $${tag}"; \
+		tmp=$$(docker inspect --type=image --format="Found image" $${tag} 2> /dev/null); \
+		if [ "A$${tmp}" == "A" ]; then \
+			echo "Missing image: $${tag}"; \
+			exit 1; \
+		fi; \
+		array+=($${tag}); \
+	done; \
+	echo "== Found images: $${array[@]}"; \
+	echo "== TAG_PRE: $${TAG_PRE}"; \
+	echo ""; \
+	echo "++ Tagging then uploading tags to docker hub (no build) -- Press Ctl+c within 5 seconds to cancel -- will only work for maintainers"; \
+	for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""; \
+	for t in $${array[@]}; do \
+		echo "Tagging image: $${t}"; \
+		tr="$${TAG_PRE}$${t}"; \
+		tl="$$(echo $${tr} | perl -pe 's%\:([^\:]+)$$%:latest%')"; \
+		echo docker tag $${t} $${tr}; \
+		echo docker tag $${t} $${tl}; \
+		echo "Uploading image: $${tr}"; \
+		echo docker push $${tr}; \
+		echo docker push $${tl}; \
+	done
