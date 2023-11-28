@@ -104,7 +104,7 @@ DFBH=./tools/Dockerfile_builder_helper.py
 BuildDetails=BuildDetails
 
 # Tag base for the docker image release only
-TAG_RELEASE="infotrend/CTPO-"
+TAG_RELEASE="infotrend/ctpo-"
 
 ##########
 
@@ -127,12 +127,8 @@ TPO_BUILDALL_TP=tensorflow_pytorch_opencv-${STABLE_TF2}_${STABLE_TORCH}_${STABLE
 TPO_BUILDALL=${TPO_BUILDALL_T} ${TPO_BUILDALL_P} ${TPO_BUILDALL_TP}
 
 ##### Jupyter Notebook ready based on TPO & CTPO
-TPO_JUP =jupyter-tensorflow_opencv-${STABLE_TF2}_${STABLE_OPENCV4}
-TPO_JUP+=jupyter-pytorch_opencv-${STABLE_TORCH}_${STABLE_OPENCV4}
-TPO_JUP+=jupyter-tensorflow_pytorch_opencv-${STABLE_TF2}_${STABLE_TORCH}_${STABLE_OPENCV4}
-CTPO_JUP =jupyter-cuda_tensorflow_opencv-${STABLE_CUDA11}_${STABLE_TF2}_${STABLE_OPENCV4}
-CTPO_JUP+=jupyter-cuda_pytorch_opencv-${STABLE_CUDA11}_${STABLE_TORCH}_${STABLE_OPENCV4}
-CTPO_JUP+=jupyter-cuda_tensorflow_pytorch_opencv-${STABLE_CUDA11}_${STABLE_TF2}_${STABLE_TORCH}_${STABLE_OPENCV4}
+TPO_JUP=jupyter-tensorflow_pytorch_opencv-${STABLE_TF2}_${STABLE_TORCH}_${STABLE_OPENCV4}
+CTPO_JUP=jupyter-cuda_tensorflow_pytorch_opencv-${STABLE_CUDA11}_${STABLE_TF2}_${STABLE_TORCH}_${STABLE_OPENCV4}
 
 ## By default, provide the list of build targets
 all:
@@ -148,7 +144,7 @@ all:
 	@echo "  build_ctpo (requires GPU Docker runtime):"
 	@echo "    cuda_tensorflow_opencv OR cuda_pytorch_opencv OR cuda_tensorflow_pytorch_opencv (aka CTPO, for NVIDIA GPU): "; echo -n "      "; echo ${CTPO_BUILDALL} | sed -e 's/ /\n      /g'
 	@echo ""
-	@echo "*** Jupyter Notebook ready containers (requires the base TPO & CTPO container to either be built locally or docker will attempt to pull otherwise)"
+	@echo "*** Jupyter Labs ready containers (requires the base TPO & CTPO container to either be built locally or docker will attempt to pull otherwise)"
 	@echo "  jupyter_tpo: "; echo -n "      "; echo ${TPO_JUP}
 	@echo "  jupyter_ctpo: "; echo -n "      "; echo ${CTPO_JUP}
 	@echo ""
@@ -318,7 +314,14 @@ dump_builddetails:
 	@./tools/build_bi_list.py BuildDetails README-BuildDetails.md
 
 ##########
+##### Docker tag: tags the regular images with the TAG_RELEASE and CTPO_RELEASE details
+## Needed for the Jupiter Notebook build
+docker_tag:
+	PTARG="${TPO_BUILDALL} ${CTPO_BUILDALL}" TAG_PRE="${TAG_RELEASE}" DO_UPLOAD="no" make docker_tag_push_core
+
+##########
 ##### Jupyter Notebook
+# Requires the base TPO & CTPO container to either be built locally or docker will attempt to pull otherwise
 # make JN_MODE="-user" jupyter-cuda_tensorflow_pytorch_opencv-11.8.0_2.12.0_2.0.1_4.7.0
 JN_MODE=""
 JN_UID=$(shell id -u)
@@ -328,18 +331,52 @@ jupyter_tpo: ${TPO_JUP}
 
 jupyter_ctpo: ${CTPO_JUP}
 
+jupyter_build_all: jupyter_tpo jupyter_ctpo
+
 ${TPO_JUP} ${CTPO_JUP}:
-	@BTARG="$@" make jupyter_build
+	@BTARG="$@" TAG_PRE="${TAG_RELEASE}" CTPO_RELEASE="${CTPO_RELEASE}" make jupyter_build
 
 jupyter_build:
 # BTARG: jupyter-tensorflow_opencv-2.12... / split: JX: jupyter, JB: tens...opencv, JT: 2.12...
-	@echo ${BTARG} 
-	@$(eval JX=$(shell echo ${BTARG} | cut -d- -f 1)) 
-	@$(eval JB=$(shell echo ${BTARG} | cut -d- -f 2)) 
-	@$(eval JT=$(shell echo ${BTARG} | cut -d- -f 3)) 
-	@$(eval JN="${JX}-${JB}${JN_MODE}:${JT}")
-	@cd Jupyter_build; docker build --build-arg JUPBC="${JB}:${JT}-${CTPO_RELEASE}" --build-arg JUID=${JN_UID} --build-arg JGID=${JN_GID} -f Dockerfile${JN_MODE} --tag="${JN}-${CTPO_RELEASE}" .
+	@$(eval JX=$(shell echo ${BTARG} | cut -d- -f 1))
+	@$(eval JB=$(shell echo ${BTARG} | cut -d- -f 2))
+	@$(eval JT=$(shell echo ${BTARG} | cut -d- -f 3))
+	@echo "JX: ${JX} | JB: ${JB} | JT: ${JT}"
+	@if [ "A${JX}" == "A" ]; then echo "ERROR: Invalid target: ${BTARG}"; exit 1; fi
+	@if [ "A${JB}" == "A" ]; then echo "ERROR: Invalid target: ${BTARG}"; exit 1; fi
+	@if [ "A${JT}" == "A" ]; then echo "ERROR: Invalid target: ${BTARG}"; exit 1; fi
+	@$(eval JUP_FROM_IMAGE="${TAG_RELEASE}${JB}:${JT}-${CTPO_RELEASE}")
+	@$(eval JUP_DEST_IMAGE="${JX}-${JB}${JN_MODE}:${JT}-${CTPO_RELEASE}")
+	@echo "JUP_FROM_IMAGE: ${JUP_FROM_IMAGE}"
+	@echo "JUP_DEST_IMAGE: ${JUP_DEST_IMAGE}"
+	@TEST_IMAGE="${JUP_FROM_IMAGE}" make check_image_exists_then_pull
+	@cd Jupyter_build; docker build --build-arg JUPBC="${JUP_FROM_IMAGE}" --build-arg JUID=${JN_UID} --build-arg JGID=${JN_GID} -f Dockerfile${JN_MODE} --tag="${JUP_DEST_IMAGE}" .
+	@if [ "A${DO_UPLOAD}" == "Ayes" ]; then \
+		JUP_FINAL_DEST_IMAGE="${TAG_RELEASE}${JUP_DEST_IMAGE}"; \
+		echo "Tagging and uploading image: $${JUP_FINAL_DEST_IMAGE}"; \
+		echo "Press Ctl+c within 5 seconds to cancel"; \
+		for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""; \
+		docker tag ${JUP_DEST_IMAGE} $${JUP_FINAL_DEST_IMAGE}; \
+		docker push $${JUP_FINAL_DEST_IMAGE}; \
+		tl="$$(echo $${JUP_FINAL_DEST_IMAGE} | perl -pe 's%\:([^\:]+)$$%:latest%')"; \
+		docker tag $${JUP_FINAL_DEST_IMAGE} $${tl}; \
+		docker push $${tl}; \
+	fi
 
+
+check_image_exists_then_pull:
+	@echo "Checking for image: ${TEST_IMAGE}"
+	@tmp=$$(docker inspect --type=image --format="Found image" ${TEST_IMAGE} 2> /dev/null); \
+	if [ "A$${tmp}" == "A" ]; then \
+		echo "Missing image: ${TEST_IMAGE} | Downloading it"; \
+		echo "Press Ctl+c within 5 seconds to cancel"; \
+		for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""; \
+		docker pull ${TEST_IMAGE}; \
+		if [ $$? -ne 0 ]; then \
+			echo "ERROR: Unable to pull image: ${TEST_IMAGE}"; \
+			exit 1; \
+		fi; \
+	fi
 
 ##### Various cleanup
 clean:
@@ -355,14 +392,18 @@ buildclean:
 	@for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""
 	rm -rf ${BuildDetails}/${CTPO_RELEASE}
 
-##### For Maintainers only
+##### For Maintainers only (ie those with write access to the docker hub)
 docker_push:
-	PTARG="${TPO_BUILDALL} ${CTPO_BUILDALL}" TAG_PRE="${TAG_RELEASE}" make docker_push_core
+	PTARG="${TPO_BUILDALL} ${CTPO_BUILDALL}" TAG_PRE="${TAG_RELEASE}" DO_UPLOAD="yes" make docker_tag_push_core
 
-docker_push_core:
+docker_push_jup:
+	@BTARG="${TPO_JUP}" TAG_PRE="${TAG_RELEASE}" CTPO_RELEASE="${CTPO_RELEASE}" DO_UPLOAD="yes" make jupyter_build
+	@BTARG="${CTPO_JUP}" TAG_PRE="${TAG_RELEASE}" CTPO_RELEASE="${CTPO_RELEASE}" DO_UPLOAD="yes" make jupyter_build
+
+docker_tag_push_core:
 	@array=(); \
 	for t in ${PTARG}; do \
-        tag="$$(echo $$t | perl -pe 's%\-([^\-]+)$$%\:$$1%')-20231120"; \
+        tag="$$(echo $$t | perl -pe 's%\-([^\-]+)$$%\:$$1%')-$${CTPO_RELEASE}"; \
 		echo "** Checking for required image: $${tag}"; \
 		tmp=$$(docker inspect --type=image --format="Found image" $${tag} 2> /dev/null); \
 		if [ "A$${tmp}" == "A" ]; then \
@@ -374,15 +415,21 @@ docker_push_core:
 	echo "== Found images: $${array[@]}"; \
 	echo "== TAG_PRE: $${TAG_PRE}"; \
 	echo ""; \
-	echo "++ Tagging then uploading tags to docker hub (no build) -- Press Ctl+c within 5 seconds to cancel -- will only work for maintainers"; \
-	for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""; \
+	if [ "A${DO_UPLOAD}" == "Ayes" ]; then \
+		echo "++ Tagging then uploading tags to docker hub (no build) -- Press Ctl+c within 5 seconds to cancel -- will only work for maintainers"; \
+		for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""; \
+	else \
+		echo "++ Tagging only"; \
+	fi
 	for t in $${array[@]}; do \
 		echo "Tagging image: $${t}"; \
 		tr="$${TAG_PRE}$${t}"; \
 		tl="$$(echo $${tr} | perl -pe 's%\:([^\:]+)$$%:latest%')"; \
-		echo docker tag $${t} $${tr}; \
-		echo docker tag $${t} $${tl}; \
-		echo "Uploading image: $${tr}"; \
-		echo docker push $${tr}; \
-		echo docker push $${tl}; \
+		docker tag $${t} $${tr}; \
+		docker tag $${t} $${tl}; \
+		if [ "A${DO_UPLOAD}" == "Ayes" ]; then \
+			echo "Uploading image: $${tr}"; \
+			docker push $${tr}; \
+			docker push $${tl}; \
+		fi; \
 	done
