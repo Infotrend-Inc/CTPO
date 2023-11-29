@@ -37,6 +37,6 @@ Please see https://github.com/Infotrend-Inc/CTPO for further details.&#xD;
   <DonateText/>
   <DonateLink/>
   <Requires/>
-  <Config Name="WebUI" Target="8888" Default="8888" Mode="tcp" Description="Container Port: 8888" Type="Port" Display="always" Required="true" Mask="false">8888</Config>
-  <Config Name="Jupyter run directory" Target="/iti" Default="/mnt/user/appdata/jupyter_ctpo" Mode="rw" Description="Container Path: /iti" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/jupyter_to</Config>
+  <Config Name="WebUI" Target="8888" Default="8888" Mode="tcp" Description="" Type="Port" Display="always" Required="true" Mask="false">8888</Config>
+  <Config Name="Jupyter run directory" Target="/iti" Default="/mnt/user/appdata/jupyter_ctpo" Mode="rw" Description="" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/jupyter_to</Config>
 </Container>
