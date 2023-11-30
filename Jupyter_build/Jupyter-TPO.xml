@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Jupyter-TPO</Name>
+  <Repository>infotrend/ctpo-jupyter-tensorflow_pytorch_opencv-unraid</Repository>
+  <Registry>https://hub.docker.com/r/infotrend/ctpo-jupyter-tensorflow_pytorch_opencv-unraid</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://forums.unraid.net/topic/148667-support-infotrendctpo-cuda-tensorflow-pytorch-opencv/</Support>
+  <Project>https://github.com/Infotrend-Inc/CTPO</Project>
+  <Overview>
+Unraid compatible Jupyter Lab (Python kernel) container with CPU-only Tensorflow, PyTorch and OpenCV.&#xD;
+&#xD;
+The default password to access the Jupyter Lab is iti&#xD;
+&#xD;
+This is the CPU-bound container's version. &#xD;
+Please note that the container images is large at over 5GB &#xD;
+&#xD;
+A GPU equivalent container is also available and named Jupyter-CTPO and is over 18GB&#xD;
+&#xD;
+The system is ran as the jupyter user (has sudo privileges) and /iti is where you can place your weights and other files to support your development.&#xD;
+&#xD;
+Please see https://github.com/Infotrend-Inc/CTPO for further details.&#xD;
+  </Overview>
+  <Category>Productivity:</Category>
+  <WebUI>http://[IP]:[PORT:8888]</WebUI>
+  <TemplateURL/>
+  <Icon>https://github.com/Infotrend-Inc/CTPO/blob/main/assets/Infotrend_LogoOnly.png?raw=true</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText/>
+  <DonateLink/>
+  <Requires/>
+  <Config Name="WebUI" Target="8888" Default="8888" Mode="tcp" Description="" Type="Port" Display="always" Required="true" Mask="false">8888</Config>
+  <Config Name="Jupyter run directory" Target="/iti" Default="/mnt/user/appdata/jupyter_tpo" Mode="rw" Description="" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/jupyter_cpto</Config>
+</Container>

@@ -1,0 +1,16 @@
+
+CTPO_FROM=ubuntu:22.04
+CTPO_BUILD=CPU
+CTPO_TENSORFLOW_VERSION=None
+CTPO_PYTORCH_VERSION=2.0.1
+CTPO_CUDA_VERSION=None
+CTPO_OPENCV_VERSION=4.7.0
+CTPO_RELEASE=20231120
+FOUND_UBUNTU=22.04
+OpenCV_Built=4.7.0
+FFmpeg_Built=5.1.2
+Torch_Built=2.0.0a0+gite9ebda2
+TorchVision_Built=0.15.2a0+fa99a53
+TorchAudio_Built=2.0.2+31de77d
+TorchData_Built=0.6.1+e1feeb2
+TorchText_Built=0.15.2a0+4571036

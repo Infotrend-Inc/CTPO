@@ -1,0 +1,1114 @@
+  CTPO_FROM               : nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
+docker buildx build --progress plain --platform linux/amd64  \
+  --build-arg CTPO_NUMPROC="32" \
+  --tag="cuda_pytorch_opencv:11.8.0_2.0.1_4.7.0-20231120" \
+  -f BuildDetails/20231120/cuda_pytorch_opencv-11.8.0_2.0.1_4.7.0-20231120/Dockerfile \
+  .
+
+
+***** PyTorch configuration:
+-- The CXX compiler identification is GNU 11.4.0
+-- The C compiler identification is GNU 11.4.0
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- /usr/bin/c++ /usr/local/src/pytorch/torch/abi-check.cpp -o /usr/local/src/pytorch/build/abi-check
+-- Determined _GLIBCXX_USE_CXX11_ABI=1
+-- Not forcing any particular BLAS to be found
+-- Could not find ccache. Consider installing ccache to speed up compilation.
+-- Performing Test COMPILER_WORKS
+-- Performing Test COMPILER_WORKS - Success
+-- Performing Test CAFFE2_NEED_TO_TURN_OFF_DEPRECATION_WARNING
+-- Performing Test CAFFE2_NEED_TO_TURN_OFF_DEPRECATION_WARNING - Success
+-- Performing Test C_HAS_AVX_1
+-- Performing Test C_HAS_AVX_1 - Failed
+-- Performing Test C_HAS_AVX_2
+-- Performing Test C_HAS_AVX_2 - Success
+-- Performing Test C_HAS_AVX2_1
+-- Performing Test C_HAS_AVX2_1 - Failed
+-- Performing Test C_HAS_AVX2_2
+-- Performing Test C_HAS_AVX2_2 - Success
+-- Performing Test C_HAS_AVX512_1
+-- Performing Test C_HAS_AVX512_1 - Failed
+-- Performing Test C_HAS_AVX512_2
+-- Performing Test C_HAS_AVX512_2 - Failed
+-- Performing Test C_HAS_AVX512_3
+-- Performing Test C_HAS_AVX512_3 - Failed
+-- Performing Test CXX_HAS_AVX_1
+-- Performing Test CXX_HAS_AVX_1 - Failed
+-- Performing Test CXX_HAS_AVX_2
+-- Performing Test CXX_HAS_AVX_2 - Success
+-- Performing Test CXX_HAS_AVX2_1
+-- Performing Test CXX_HAS_AVX2_1 - Failed
+-- Performing Test CXX_HAS_AVX2_2
+-- Performing Test CXX_HAS_AVX2_2 - Success
+-- Performing Test CXX_HAS_AVX512_1
+-- Performing Test CXX_HAS_AVX512_1 - Failed
+-- Performing Test CXX_HAS_AVX512_2
+-- Performing Test CXX_HAS_AVX512_2 - Failed
+-- Performing Test CXX_HAS_AVX512_3
+-- Performing Test CXX_HAS_AVX512_3 - Failed
+-- Current compiler supports avx2 extension. Will build perfkernels.
+-- Performing Test CAFFE2_COMPILER_SUPPORTS_AVX512_EXTENSIONS
+-- Performing Test CAFFE2_COMPILER_SUPPORTS_AVX512_EXTENSIONS - Success
+-- Current compiler supports avx512f extension. Will build fbgemm.
+-- Performing Test COMPILER_SUPPORTS_HIDDEN_VISIBILITY
+-- Performing Test COMPILER_SUPPORTS_HIDDEN_VISIBILITY - Success
+-- Performing Test COMPILER_SUPPORTS_HIDDEN_INLINE_VISIBILITY
+-- Performing Test COMPILER_SUPPORTS_HIDDEN_INLINE_VISIBILITY - Success
+-- Performing Test COMPILER_SUPPORTS_RDYNAMIC
+-- Performing Test COMPILER_SUPPORTS_RDYNAMIC - Success
+-- Found CUDA: /usr/local/nvidia (found version "11.8") 
+-- The CUDA compiler identification is NVIDIA 11.8.89
+-- Detecting CUDA compiler ABI info
+-- Detecting CUDA compiler ABI info - done
+-- Check for working CUDA compiler: /usr/local/nvidia/bin/nvcc - skipped
+-- Detecting CUDA compile features
+-- Detecting CUDA compile features - done
+-- Caffe2: CUDA detected: 11.8
+-- Caffe2: CUDA nvcc is: /usr/local/nvidia/bin/nvcc
+-- Caffe2: CUDA toolkit directory: /usr/local/nvidia
+-- Caffe2: Header version is: 11.8
+-- /usr/local/nvidia/lib64/libnvrtc.so shorthash is 672ee683
+-- Found CUDNN: /usr/lib/x86_64-linux-gnu/libcudnn.so  
+-- Added CUDA NVCC flags for: -gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_86,code=sm_86;-gencode;arch=compute_89,code=sm_89;-gencode;arch=compute_90,code=sm_90;-gencode;arch=compute_90,code=compute_90
+-- Building using own protobuf under third_party per request.
+-- Use custom protobuf build.
+-- 
+-- 3.13.0.0
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Performing Test protobuf_HAVE_BUILTIN_ATOMICS
+-- Performing Test protobuf_HAVE_BUILTIN_ATOMICS - Success
+-- Caffe2 protobuf include directory: $<BUILD_INTERFACE:/usr/local/src/pytorch/third_party/protobuf/src>$<INSTALL_INTERFACE:include>
+-- Trying to find preferred BLAS backend of choice: MKL
+-- MKL_THREADING = OMP
+-- Looking for sys/types.h
+-- Looking for sys/types.h - found
+-- Looking for stdint.h
+-- Looking for stdint.h - found
+-- Looking for stddef.h
+-- Looking for stddef.h - found
+-- Check size of void*
+-- Check size of void* - done
+-- MKL_THREADING = OMP
+-- MKL_THREADING = OMP
+-- Checking for [mkl_intel_lp64 - mkl_gnu_thread - mkl_core - gomp - pthread - m - dl]
+--   Library mkl_intel_lp64: not found
+-- Checking for [mkl_intel_lp64 - mkl_intel_thread - mkl_core - gomp - pthread - m - dl]
+--   Library mkl_intel_lp64: not found
+-- Checking for [mkl_intel - mkl_gnu_thread - mkl_core - gomp - pthread - m - dl]
+--   Library mkl_intel: not found
+-- Checking for [mkl_intel - mkl_intel_thread - mkl_core - gomp - pthread - m - dl]
+--   Library mkl_intel: not found
+-- Checking for [mkl_gf_lp64 - mkl_gnu_thread - mkl_core - gomp - pthread - m - dl]
+--   Library mkl_gf_lp64: not found
+-- Checking for [mkl_gf_lp64 - mkl_intel_thread - mkl_core - gomp - pthread - m - dl]
+--   Library mkl_gf_lp64: not found
+-- Checking for [mkl_gf - mkl_gnu_thread - mkl_core - gomp - pthread - m - dl]
+--   Library mkl_gf: not found
+-- Checking for [mkl_gf - mkl_intel_thread - mkl_core - gomp - pthread - m - dl]
+--   Library mkl_gf: not found
+-- Checking for [mkl_intel_lp64 - mkl_gnu_thread - mkl_core - iomp5 - pthread - m - dl]
+--   Library mkl_intel_lp64: not found
+-- Checking for [mkl_intel_lp64 - mkl_intel_thread - mkl_core - iomp5 - pthread - m - dl]
+--   Library mkl_intel_lp64: not found
+-- Checking for [mkl_intel - mkl_gnu_thread - mkl_core - iomp5 - pthread - m - dl]
+--   Library mkl_intel: not found
+-- Checking for [mkl_intel - mkl_intel_thread - mkl_core - iomp5 - pthread - m - dl]
+--   Library mkl_intel: not found
+-- Checking for [mkl_gf_lp64 - mkl_gnu_thread - mkl_core - iomp5 - pthread - m - dl]
+--   Library mkl_gf_lp64: not found
+-- Checking for [mkl_gf_lp64 - mkl_intel_thread - mkl_core - iomp5 - pthread - m - dl]
+--   Library mkl_gf_lp64: not found
+-- Checking for [mkl_gf - mkl_gnu_thread - mkl_core - iomp5 - pthread - m - dl]
+--   Library mkl_gf: not found
+-- Checking for [mkl_gf - mkl_intel_thread - mkl_core - iomp5 - pthread - m - dl]
+--   Library mkl_gf: not found
+-- Checking for [mkl_intel_lp64 - mkl_gnu_thread - mkl_core - pthread - m - dl]
+--   Library mkl_intel_lp64: not found
+-- Checking for [mkl_intel_lp64 - mkl_intel_thread - mkl_core - pthread - m - dl]
+--   Library mkl_intel_lp64: not found
+-- Checking for [mkl_intel - mkl_gnu_thread - mkl_core - pthread - m - dl]
+--   Library mkl_intel: not found
+-- Checking for [mkl_intel - mkl_intel_thread - mkl_core - pthread - m - dl]
+--   Library mkl_intel: not found
+-- Checking for [mkl_gf_lp64 - mkl_gnu_thread - mkl_core - pthread - m - dl]
+--   Library mkl_gf_lp64: not found
+-- Checking for [mkl_gf_lp64 - mkl_intel_thread - mkl_core - pthread - m - dl]
+--   Library mkl_gf_lp64: not found
+-- Checking for [mkl_gf - mkl_gnu_thread - mkl_core - pthread - m - dl]
+--   Library mkl_gf: not found
+-- Checking for [mkl_gf - mkl_intel_thread - mkl_core - pthread - m - dl]
+--   Library mkl_gf: not found
+-- Checking for [mkl_intel_lp64 - mkl_sequential - mkl_core - m - dl]
+--   Library mkl_intel_lp64: not found
+-- Checking for [mkl_intel - mkl_sequential - mkl_core - m - dl]
+--   Library mkl_intel: not found
+-- Checking for [mkl_gf_lp64 - mkl_sequential - mkl_core - m - dl]
+--   Library mkl_gf_lp64: not found
+-- Checking for [mkl_gf - mkl_sequential - mkl_core - m - dl]
+--   Library mkl_gf: not found
+-- Checking for [mkl_intel_lp64 - mkl_core - gomp - pthread - m - dl]
+--   Library mkl_intel_lp64: not found
+-- Checking for [mkl_intel - mkl_core - gomp - pthread - m - dl]
+--   Library mkl_intel: not found
+-- Checking for [mkl_gf_lp64 - mkl_core - gomp - pthread - m - dl]
+--   Library mkl_gf_lp64: not found
+-- Checking for [mkl_gf - mkl_core - gomp - pthread - m - dl]
+--   Library mkl_gf: not found
+-- Checking for [mkl_intel_lp64 - mkl_core - iomp5 - pthread - m - dl]
+--   Library mkl_intel_lp64: not found
+-- Checking for [mkl_intel - mkl_core - iomp5 - pthread - m - dl]
+--   Library mkl_intel: not found
+-- Checking for [mkl_gf_lp64 - mkl_core - iomp5 - pthread - m - dl]
+--   Library mkl_gf_lp64: not found
+-- Checking for [mkl_gf - mkl_core - iomp5 - pthread - m - dl]
+--   Library mkl_gf: not found
+-- Checking for [mkl_intel_lp64 - mkl_core - pthread - m - dl]
+--   Library mkl_intel_lp64: not found
+-- Checking for [mkl_intel - mkl_core - pthread - m - dl]
+--   Library mkl_intel: not found
+-- Checking for [mkl_gf_lp64 - mkl_core - pthread - m - dl]
+--   Library mkl_gf_lp64: not found
+-- Checking for [mkl_gf - mkl_core - pthread - m - dl]
+--   Library mkl_gf: not found
+-- Checking for [mkl - guide - pthread - m]
+--   Library mkl: not found
+-- MKL library not found
+-- Checking for [blis]
+--   Library blis: BLAS_blis_LIBRARY-NOTFOUND
+-- Checking for [Accelerate]
+--   Library Accelerate: BLAS_Accelerate_LIBRARY-NOTFOUND
+-- Checking for [vecLib]
+--   Library vecLib: BLAS_vecLib_LIBRARY-NOTFOUND
+-- Checking for [flexiblas]
+--   Library flexiblas: BLAS_flexiblas_LIBRARY-NOTFOUND
+-- Checking for [openblas]
+--   Library openblas: /usr/lib/x86_64-linux-gnu/libopenblas.so
+-- Looking for sgemm_
+-- Looking for sgemm_ - found
+-- Performing Test BLAS_F2C_DOUBLE_WORKS
+-- Performing Test BLAS_F2C_DOUBLE_WORKS - Failed
+-- Performing Test BLAS_F2C_FLOAT_WORKS
+-- Performing Test BLAS_F2C_FLOAT_WORKS - Success
+-- Performing Test BLAS_USE_CBLAS_DOT
+-- Performing Test BLAS_USE_CBLAS_DOT - Success
+-- Looking for sbgemm_
+-- Looking for sbgemm_ - not found
+-- Found a library with BLAS API (open). Full path: (/usr/lib/x86_64-linux-gnu/libopenblas.so)
+-- Using pocketfft in directory: /usr/local/src/pytorch/third_party/pocketfft/
+-- The ASM compiler identification is GNU
+-- Found assembler: /usr/bin/cc
+-- Brace yourself, we are building NNPACK
+-- Performing Test NNPACK_ARCH_IS_X86_32
+-- Performing Test NNPACK_ARCH_IS_X86_32 - Failed
+-- Found PythonInterp: /usr/bin/python3 (found version "3.10.12") 
+-- NNPACK backend is x86-64
+-- Found Python: /usr/local/bin/python (found version "3.10.12") found components: Interpreter 
+-- Failed to find LLVM FileCheck
+-- Found Git: /usr/bin/git (found version "2.34.1") 
+-- git version: v1.6.1 normalized to 1.6.1
+-- Version: 1.6.1
+-- Looking for shm_open in rt
+-- Looking for shm_open in rt - found
+-- Performing Test HAVE_CXX_FLAG_STD_CXX11
+-- Performing Test HAVE_CXX_FLAG_STD_CXX11 - Success
+-- Performing Test HAVE_CXX_FLAG_WALL
+-- Performing Test HAVE_CXX_FLAG_WALL - Success
+-- Performing Test HAVE_CXX_FLAG_WEXTRA
+-- Performing Test HAVE_CXX_FLAG_WEXTRA - Success
+-- Performing Test HAVE_CXX_FLAG_WSHADOW
+-- Performing Test HAVE_CXX_FLAG_WSHADOW - Success
+-- Performing Test HAVE_CXX_FLAG_WERROR
+-- Performing Test HAVE_CXX_FLAG_WERROR - Success
+-- Performing Test HAVE_CXX_FLAG_WSUGGEST_OVERRIDE
+-- Performing Test HAVE_CXX_FLAG_WSUGGEST_OVERRIDE - Success
+-- Performing Test HAVE_CXX_FLAG_PEDANTIC
+-- Performing Test HAVE_CXX_FLAG_PEDANTIC - Success
+-- Performing Test HAVE_CXX_FLAG_PEDANTIC_ERRORS
+-- Performing Test HAVE_CXX_FLAG_PEDANTIC_ERRORS - Success
+-- Performing Test HAVE_CXX_FLAG_WSHORTEN_64_TO_32
+-- Performing Test HAVE_CXX_FLAG_WSHORTEN_64_TO_32 - Failed
+-- Performing Test HAVE_CXX_FLAG_FSTRICT_ALIASING
+-- Performing Test HAVE_CXX_FLAG_FSTRICT_ALIASING - Success
+-- Performing Test HAVE_CXX_FLAG_WNO_DEPRECATED_DECLARATIONS
+-- Performing Test HAVE_CXX_FLAG_WNO_DEPRECATED_DECLARATIONS - Success
+-- Performing Test HAVE_CXX_FLAG_WNO_DEPRECATED
+-- Performing Test HAVE_CXX_FLAG_WNO_DEPRECATED - Success
+-- Performing Test HAVE_CXX_FLAG_WSTRICT_ALIASING
+-- Performing Test HAVE_CXX_FLAG_WSTRICT_ALIASING - Success
+-- Performing Test HAVE_CXX_FLAG_WD654
+-- Performing Test HAVE_CXX_FLAG_WD654 - Failed
+-- Performing Test HAVE_CXX_FLAG_WTHREAD_SAFETY
+-- Performing Test HAVE_CXX_FLAG_WTHREAD_SAFETY - Failed
+-- Performing Test HAVE_CXX_FLAG_COVERAGE
+-- Performing Test HAVE_CXX_FLAG_COVERAGE - Success
+-- Performing Test HAVE_STD_REGEX
+-- Performing Test HAVE_STD_REGEX
+-- Performing Test HAVE_STD_REGEX -- success
+-- Performing Test HAVE_GNU_POSIX_REGEX
+-- Performing Test HAVE_GNU_POSIX_REGEX
+-- Performing Test HAVE_GNU_POSIX_REGEX -- failed to compile
+-- Performing Test HAVE_POSIX_REGEX
+-- Performing Test HAVE_POSIX_REGEX
+-- Performing Test HAVE_POSIX_REGEX -- success
+-- Performing Test HAVE_STEADY_CLOCK
+-- Performing Test HAVE_STEADY_CLOCK
+-- Performing Test HAVE_STEADY_CLOCK -- success
+-- Performing Test COMPILER_SUPPORTS_AVX512
+-- Performing Test COMPILER_SUPPORTS_AVX512 - Success
+-- Found OpenMP_C: -fopenmp (found version "4.5") 
+-- Found OpenMP_CXX: -fopenmp (found version "4.5") 
+-- Found OpenMP: TRUE (found version "4.5")  
+-- Performing Test __CxxFlag__fno_threadsafe_statics
+-- Performing Test __CxxFlag__fno_threadsafe_statics - Success
+-- Performing Test __CxxFlag__fno_semantic_interposition
+-- Performing Test __CxxFlag__fno_semantic_interposition - Success
+-- Performing Test __CxxFlag__fmerge_all_constants
+-- Performing Test __CxxFlag__fmerge_all_constants - Success
+-- Performing Test __CxxFlag__fno_enforce_eh_specs
+-- Performing Test __CxxFlag__fno_enforce_eh_specs - Success
+-- Found Numa: /usr/include  
+-- Found Numa  (include: /usr/include, library: /usr/lib/x86_64-linux-gnu/libnuma.so)
+-- OpenCV found (/usr/local/lib/cmake/opencv4)
+-- Found FFMPEG or Libav: /usr/local/lib/libavcodec.so;/usr/local/lib/libavformat.so;/usr/local/lib/libavutil.so;/usr/local/lib/libswscale.so;/usr/local/lib/libswresample.so, /usr/local/include
+-- Using third party subdirectory Eigen.
+-- Found PythonInterp: /usr/bin/python3 (found suitable version "3.10.12", minimum required is "3.0") 
+-- Found PythonLibs: /usr/lib/x86_64-linux-gnu/libpython3.10.so.1.0 (found suitable version "3.10.12", minimum required is "3.0") 
+-- Using third_party/pybind11.
+-- pybind11 include dirs: /usr/local/src/pytorch/cmake/../third_party/pybind11/include
+-- Found MPI_C: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so (found version "3.1") 
+-- Found MPI_CXX: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so (found version "3.1") 
+-- Found MPI: TRUE (found version "3.1")  
+-- MPI support found
+-- MPI compile flags: 
+-- MPI include path: /usr/lib/x86_64-linux-gnu/openmpi/include/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi
+-- MPI LINK flags path: 
+-- MPI libraries: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so/usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
+-- Found OpenMP_C: -fopenmp  
+-- Found OpenMP_CXX: -fopenmp  
+-- Found OpenMP: TRUE   
+-- Adding OpenMP CXX_FLAGS: -fopenmp
+-- Will link against OpenMP libraries: /usr/lib/gcc/x86_64-linux-gnu/11/libgomp.so;/usr/lib/x86_64-linux-gnu/libpthread.a
+-- Disabling kernel asserts for ROCm
+-- Found CUB: /usr/local/nvidia/include  
+-- Converting CMAKE_CUDA_FLAGS to CUDA_NVCC_FLAGS:
+    CUDA_NVCC_FLAGS                = -Xfatbin;-compress-all;-DONNX_NAMESPACE=onnx_torch;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_86,code=sm_86;-gencode;arch=compute_89,code=sm_89;-gencode;arch=compute_90,code=sm_90;-gencode;arch=compute_90,code=compute_90;-Xcudafe;--diag_suppress=cc_clobber_ignored,--diag_suppress=integer_sign_change,--diag_suppress=useless_using_declaration,--diag_suppress=set_but_not_used,--diag_suppress=field_without_dll_interface,--diag_suppress=base_class_has_different_dll_interface,--diag_suppress=dll_interface_conflict_none_assumed,--diag_suppress=dll_interface_conflict_dllexport_assumed,--diag_suppress=implicit_return_from_non_void_function,--diag_suppress=unsigned_compare_with_zero,--diag_suppress=declared_but_not_referenced,--diag_suppress=bad_friend_decl;--expt-relaxed-constexpr;--expt-extended-lambda
+    CUDA_NVCC_FLAGS_DEBUG          = -g;-lineinfo;--source-in-ptx
+    CUDA_NVCC_FLAGS_RELEASE        = -O3;-DNDEBUG
+    CUDA_NVCC_FLAGS_RELWITHDEBINFO = -g;-lineinfo;--source-in-ptx
+    CUDA_NVCC_FLAGS_MINSIZEREL     = -O1;-DNDEBUG
+-- Performing Test UV_LINT_W4
+-- Performing Test UV_LINT_W4 - Failed
+-- Performing Test UV_LINT_NO_UNUSED_PARAMETER_MSVC
+-- Performing Test UV_LINT_NO_UNUSED_PARAMETER_MSVC - Failed
+-- Performing Test UV_LINT_NO_CONDITIONAL_CONSTANT_MSVC
+-- Performing Test UV_LINT_NO_CONDITIONAL_CONSTANT_MSVC - Failed
+-- Performing Test UV_LINT_NO_NONSTANDARD_MSVC
+-- Performing Test UV_LINT_NO_NONSTANDARD_MSVC - Failed
+-- Performing Test UV_LINT_NO_NONSTANDARD_EMPTY_TU_MSVC
+-- Performing Test UV_LINT_NO_NONSTANDARD_EMPTY_TU_MSVC - Failed
+-- Performing Test UV_LINT_NO_NONSTANDARD_FILE_SCOPE_MSVC
+-- Performing Test UV_LINT_NO_NONSTANDARD_FILE_SCOPE_MSVC - Failed
+-- Performing Test UV_LINT_NO_NONSTANDARD_NONSTATIC_DLIMPORT_MSVC
+-- Performing Test UV_LINT_NO_NONSTANDARD_NONSTATIC_DLIMPORT_MSVC - Failed
+-- Performing Test UV_LINT_NO_HIDES_LOCAL
+-- Performing Test UV_LINT_NO_HIDES_LOCAL - Failed
+-- Performing Test UV_LINT_NO_HIDES_PARAM
+-- Performing Test UV_LINT_NO_HIDES_PARAM - Failed
+-- Performing Test UV_LINT_NO_HIDES_GLOBAL
+-- Performing Test UV_LINT_NO_HIDES_GLOBAL - Failed
+-- Performing Test UV_LINT_NO_CONDITIONAL_ASSIGNMENT_MSVC
+-- Performing Test UV_LINT_NO_CONDITIONAL_ASSIGNMENT_MSVC - Failed
+-- Performing Test UV_LINT_NO_UNSAFE_MSVC
+-- Performing Test UV_LINT_NO_UNSAFE_MSVC - Failed
+-- Performing Test UV_LINT_WALL
+-- Performing Test UV_LINT_WALL - Success
+-- Performing Test UV_LINT_NO_UNUSED_PARAMETER
+-- Performing Test UV_LINT_NO_UNUSED_PARAMETER - Success
+-- Performing Test UV_LINT_STRICT_PROTOTYPES
+-- Performing Test UV_LINT_STRICT_PROTOTYPES - Success
+-- Performing Test UV_LINT_EXTRA
+-- Performing Test UV_LINT_EXTRA - Success
+-- Performing Test UV_LINT_UTF8_MSVC
+-- Performing Test UV_LINT_UTF8_MSVC - Failed
+-- Performing Test UV_F_STRICT_ALIASING
+-- Performing Test UV_F_STRICT_ALIASING - Success
+-- summary of build options:
+    Install prefix:  /usr/local/src/pytorch/torch
+    Target system:   Linux
+    Compiler:
+      C compiler:    /usr/bin/cc
+      CFLAGS:         
+
+-- Found uv: 1.38.1 (found version "1.38.1") 
+-- Converting CMAKE_CUDA_FLAGS to CUDA_NVCC_FLAGS:
+    CUDA_NVCC_FLAGS                = -Xfatbin;-compress-all;-DONNX_NAMESPACE=onnx_torch;-gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_86,code=sm_86;-gencode;arch=compute_89,code=sm_89;-gencode;arch=compute_90,code=sm_90;-gencode;arch=compute_90,code=compute_90;-Xcudafe;--diag_suppress=cc_clobber_ignored,--diag_suppress=integer_sign_change,--diag_suppress=useless_using_declaration,--diag_suppress=set_but_not_used,--diag_suppress=field_without_dll_interface,--diag_suppress=base_class_has_different_dll_interface,--diag_suppress=dll_interface_conflict_none_assumed,--diag_suppress=dll_interface_conflict_dllexport_assumed,--diag_suppress=implicit_return_from_non_void_function,--diag_suppress=unsigned_compare_with_zero,--diag_suppress=declared_but_not_referenced,--diag_suppress=bad_friend_decl;--expt-relaxed-constexpr;--expt-extended-lambda
+    CUDA_NVCC_FLAGS_DEBUG          = -g;-lineinfo;--source-in-ptx
+    CUDA_NVCC_FLAGS_RELEASE        = -O3;-DNDEBUG
+    CUDA_NVCC_FLAGS_RELWITHDEBINFO = -g;-lineinfo;--source-in-ptx
+    CUDA_NVCC_FLAGS_MINSIZEREL     = -O1;-DNDEBUG
+-- Gloo build as SHARED library
+-- MPI include path: /usr/lib/x86_64-linux-gnu/openmpi/include/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi
+-- MPI libraries: /usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so/usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so
+-- Found CUDA: /usr/local/nvidia (found suitable version "11.8", minimum required is "7.0") 
+-- CUDA detected: 11.8
+-- Found PythonInterp: /usr/bin/python3 (found version "3.10.12") 
+-- 
+-- ******** Summary ********
+--   CMake version             : 3.27.7
+--   CMake command             : /usr/local/lib/python3.10/dist-packages/cmake/data/bin/cmake
+--   System                    : Linux
+--   C++ compiler              : /usr/bin/c++
+--   C++ compiler version      : 11.4.0
+--   CXX flags                 :  -D_GLIBCXX_USE_CXX11_ABI=1 -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -Wnon-virtual-dtor
+--   Build type                : Release
+--   Compile definitions       : ONNX_ML=1;ONNXIFI_ENABLE_EXT=1;__STDC_FORMAT_MACROS
+--   CMAKE_PREFIX_PATH         : /usr/local/lib/python3.10/dist-packages;/usr/local/nvidia
+--   CMAKE_INSTALL_PREFIX      : /usr/local/src/pytorch/torch
+--   CMAKE_MODULE_PATH         : /usr/local/src/pytorch/cmake/Modules;/usr/local/src/pytorch/cmake/public/../Modules_CUDA_fix
+-- 
+--   ONNX version              : 1.13.1rc2
+--   ONNX NAMESPACE            : onnx_torch
+--   ONNX_USE_LITE_PROTO       : OFF
+--   USE_PROTOBUF_SHARED_LIBS  : OFF
+--   Protobuf_USE_STATIC_LIBS  : ON
+--   ONNX_DISABLE_EXCEPTIONS   : OFF
+--   ONNX_WERROR               : OFF
+--   ONNX_BUILD_TESTS          : OFF
+--   ONNX_BUILD_BENCHMARKS     : OFF
+-- 
+--   Protobuf compiler         : 
+--   Protobuf includes         : 
+--   Protobuf libraries        : 
+--   BUILD_ONNX_PYTHON         : OFF
+-- 
+-- ******** Summary ********
+--   CMake version         : 3.27.7
+--   CMake command         : /usr/local/lib/python3.10/dist-packages/cmake/data/bin/cmake
+--   System                : Linux
+--   C++ compiler          : /usr/bin/c++
+--   C++ compiler version  : 11.4.0
+--   CXX flags             :  -D_GLIBCXX_USE_CXX11_ABI=1 -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -Wnon-virtual-dtor
+--   Build type            : Release
+--   Compile definitions   : ONNX_ML=1;ONNXIFI_ENABLE_EXT=1
+--   CMAKE_PREFIX_PATH     : /usr/local/lib/python3.10/dist-packages;/usr/local/nvidia
+--   CMAKE_INSTALL_PREFIX  : /usr/local/src/pytorch/torch
+--   CMAKE_MODULE_PATH     : /usr/local/src/pytorch/cmake/Modules;/usr/local/src/pytorch/cmake/public/../Modules_CUDA_fix
+-- 
+--   ONNX version          : 1.4.1
+--   ONNX NAMESPACE        : onnx_torch
+--   ONNX_BUILD_TESTS      : OFF
+--   ONNX_BUILD_BENCHMARKS : OFF
+--   ONNX_USE_LITE_PROTO   : OFF
+--   ONNXIFI_DUMMY_BACKEND : 
+-- 
+--   Protobuf compiler     : 
+--   Protobuf includes     : 
+--   Protobuf libraries    : 
+--   BUILD_ONNX_PYTHON     : OFF
+-- Found CUDA with FP16 support, compiling with torch.cuda.HalfTensor
+-- Adding -DNDEBUG to compile flags
+-- Checking prototype magma_get_sgeqrf_nb for MAGMA_V2
+-- Checking prototype magma_get_sgeqrf_nb for MAGMA_V2 - False
+-- Compiling with MAGMA support
+-- MAGMA INCLUDE DIRECTORIES: /usr/local/magma/include
+-- MAGMA LIBRARIES: /usr/local/magma/lib/libmagma.so
+-- MAGMA V2 check: 0
+-- Could not find hardware support for NEON on this machine.
+-- No OMAP3 processor on this machine.
+-- No OMAP4 processor on this machine.
+-- Looking for cheev_
+-- Looking for cheev_ - found
+-- Looking for cgesdd_
+-- Looking for cgesdd_ - found
+-- Found a library with LAPACK API (open).
+-- MIOpen not found. Compiling without MIOpen support
+-- MKLDNN_CPU_RUNTIME = OMP
+-- cmake version: 3.27.7
+-- DNNL_TARGET_ARCH: X64
+-- DNNL_LIBRARY_NAME: dnnl
+-- Found OpenMP_C: -fopenmp  
+-- Found OpenMP_CXX: -fopenmp  
+-- Could NOT find Doxyrest (missing: DOXYREST_EXECUTABLE) 
+-- Found PythonInterp: /usr/bin/python3 (found suitable version "3.10.12", minimum required is "2.7") 
+-- Could NOT find Sphinx (missing: SPHINX_EXECUTABLE) 
+-- Enabled workload: TRAINING
+-- Enabled primitives: ALL
+-- Enabled primitive CPU ISA: ALL
+-- Enabled primitive GPU ISA: ALL
+-- Primitive cache is enabled
+-- Looking for /usr/local/src/pytorch/third_party/ideep/mkl-dnn/include/oneapi/dnnl/dnnl_graph.h
+-- Looking for /usr/local/src/pytorch/third_party/ideep/mkl-dnn/include/oneapi/dnnl/dnnl_graph.h - found
+-- Looking for /usr/local/src/pytorch/third_party/ideep/mkl-dnn/include/oneapi/dnnl/dnnl_graph_types.h
+-- Looking for /usr/local/src/pytorch/third_party/ideep/mkl-dnn/include/oneapi/dnnl/dnnl_graph_types.h - found
+-- Looking for C++ include /usr/local/src/pytorch/third_party/ideep/mkl-dnn/include/oneapi/dnnl/dnnl_graph.hpp
+-- Looking for C++ include /usr/local/src/pytorch/third_party/ideep/mkl-dnn/include/oneapi/dnnl/dnnl_graph.hpp - found
+-- Found Doxygen: /usr/bin/doxygen (found version "1.9.1") found components: doxygen missing components: dot
+-- DNNL_GRAPH_BUILD_FOR_CI is set to be OFF
+-- Compiling oneDNN Graph with CPU runtime OMP support
+-- Compiling oneDNN Graph with GPU runtime NONE support
+-- Graph compiler backend is disabled.
+-- Set version definitions to /usr/local/src/pytorch/third_party/ideep/mkl-dnn/src/utils/verbose.cpp
+-- Compiled partition cache is enabled
+-- Found MKL-DNN: TRUE
+-- Looking for clock_gettime in rt
+-- Looking for clock_gettime in rt - found
+-- Looking for mmap
+-- Looking for mmap - found
+-- Looking for shm_open
+-- Looking for shm_open - found
+-- Looking for shm_unlink
+-- Looking for shm_unlink - found
+-- Looking for malloc_usable_size
+-- Looking for malloc_usable_size - found
+-- Performing Test C_HAS_THREAD
+-- Performing Test C_HAS_THREAD - Success
+-- Module support is disabled.
+-- Version: 9.1.0
+-- Build type: Release
+-- CXX_STANDARD: 17
+-- Performing Test has_std_17_flag
+-- Performing Test has_std_17_flag - Success
+-- Performing Test has_std_1z_flag
+-- Performing Test has_std_1z_flag - Success
+-- Required features: cxx_variadic_templates
+-- Using Kineto with CUPTI support
+-- Configuring Kineto dependency:
+--   KINETO_SOURCE_DIR = /usr/local/src/pytorch/third_party/kineto/libkineto
+--   KINETO_BUILD_TESTS = OFF
+--   KINETO_LIBRARY_TYPE = static
+--   CUDA_SOURCE_DIR = /usr/local/nvidia
+--   CUDA_INCLUDE_DIRS = /usr/local/nvidia/include
+--   CUPTI_INCLUDE_DIR = /usr/local/nvidia/include
+--   CUDA_cupti_LIBRARY = /usr/local/nvidia/lib64/libcupti.so
+-- Found CUPTI
+-- Found PythonInterp: /usr/bin/python3 (found version "3.10.12") 
+-- Kineto: FMT_SOURCE_DIR = /usr/local/src/pytorch/third_party/fmt
+-- Kineto: FMT_INCLUDE_DIR = /usr/local/src/pytorch/third_party/fmt/include
+-- Configured Kineto
+-- GCC 11.4.0: Adding gcc and gcc_s libs to link line
+-- Performing Test HAS_WERROR_RETURN_TYPE
+-- Performing Test HAS_WERROR_RETURN_TYPE - Success
+-- Performing Test HAS_WERROR_NON_VIRTUAL_DTOR
+-- Performing Test HAS_WERROR_NON_VIRTUAL_DTOR - Success
+-- Performing Test HAS_WERROR_BRACED_SCALAR_INIT
+-- Performing Test HAS_WERROR_BRACED_SCALAR_INIT - Failed
+-- Performing Test HAS_WERROR_RANGE_LOOP_CONSTRUCT
+-- Performing Test HAS_WERROR_RANGE_LOOP_CONSTRUCT - Success
+-- Performing Test HAS_WERROR_BOOL_OPERATION
+-- Performing Test HAS_WERROR_BOOL_OPERATION - Success
+-- Performing Test HAS_WINCONSISTENT_MISSING_OVERRIDE
+-- Performing Test HAS_WINCONSISTENT_MISSING_OVERRIDE - Failed
+-- Performing Test HAS_WNARROWING
+-- Performing Test HAS_WNARROWING - Success
+-- Performing Test HAS_WNO_MISSING_FIELD_INITIALIZERS
+-- Performing Test HAS_WNO_MISSING_FIELD_INITIALIZERS - Success
+-- Performing Test HAS_WNO_TYPE_LIMITS
+-- Performing Test HAS_WNO_TYPE_LIMITS - Success
+-- Performing Test HAS_WNO_ARRAY_BOUNDS
+-- Performing Test HAS_WNO_ARRAY_BOUNDS - Success
+-- Performing Test HAS_WNO_UNKNOWN_PRAGMAS
+-- Performing Test HAS_WNO_UNKNOWN_PRAGMAS - Success
+-- Performing Test HAS_WUNUSED_LOCAL_TYPEDEFS
+-- Performing Test HAS_WUNUSED_LOCAL_TYPEDEFS - Success
+-- Performing Test HAS_WNO_UNUSED_PARAMETER
+-- Performing Test HAS_WNO_UNUSED_PARAMETER - Success
+-- Performing Test HAS_WNO_UNUSED_FUNCTION
+-- Performing Test HAS_WNO_UNUSED_FUNCTION - Success
+-- Performing Test HAS_WNO_UNUSED_RESULT
+-- Performing Test HAS_WNO_UNUSED_RESULT - Success
+-- Performing Test HAS_WNO_STRICT_OVERFLOW
+-- Performing Test HAS_WNO_STRICT_OVERFLOW - Success
+-- Performing Test HAS_WNO_STRICT_ALIASING
+-- Performing Test HAS_WNO_STRICT_ALIASING - Success
+-- Performing Test HAS_WNO_ERROR_DEPRECATED_DECLARATIONS
+-- Performing Test HAS_WNO_ERROR_DEPRECATED_DECLARATIONS - Success
+-- Performing Test HAS_WVLA_EXTENSION
+-- Performing Test HAS_WVLA_EXTENSION - Failed
+-- Performing Test HAS_WNO_ERROR_PEDANTIC
+-- Performing Test HAS_WNO_ERROR_PEDANTIC - Success
+-- Performing Test HAS_WNO_ERROR_REDUNDANT_DECLS
+-- Performing Test HAS_WNO_ERROR_REDUNDANT_DECLS - Success
+-- Performing Test HAS_WNO_ERROR_OLD_STYLE_CAST
+-- Performing Test HAS_WNO_ERROR_OLD_STYLE_CAST - Success
+-- Performing Test HAS_FCOLOR_DIAGNOSTICS
+-- Performing Test HAS_FCOLOR_DIAGNOSTICS - Failed
+-- Performing Test HAS_FDIAGNOSTICS_COLOR_ALWAYS
+-- Performing Test HAS_FDIAGNOSTICS_COLOR_ALWAYS - Success
+-- Performing Test HAS_WNO_UNUSED_BUT_SET_VARIABLE
+-- Performing Test HAS_WNO_UNUSED_BUT_SET_VARIABLE - Success
+-- Performing Test HAS_WNO_MAYBE_UNINITIALIZED
+-- Performing Test HAS_WNO_MAYBE_UNINITIALIZED - Success
+-- Performing Test HAS_FNO_MATH_ERRNO
+-- Performing Test HAS_FNO_MATH_ERRNO - Success
+-- Performing Test HAS_FNO_TRAPPING_MATH
+-- Performing Test HAS_FNO_TRAPPING_MATH - Success
+-- Performing Test HAS_WERROR_FORMAT
+-- Performing Test HAS_WERROR_FORMAT - Success
+-- Performing Test HAS_WERROR_CAST_FUNCTION_TYPE
+-- Performing Test HAS_WERROR_CAST_FUNCTION_TYPE - Success
+-- Performing Test HAS_WNO_STRINGOP_OVERFLOW
+-- Performing Test HAS_WNO_STRINGOP_OVERFLOW - Success
+-- Looking for backtrace
+-- Looking for backtrace - found
+-- backtrace facility detected in default set of libraries
+-- Found Backtrace: /usr/include  
+-- NUMA paths:
+-- /usr/include
+-- /usr/lib/x86_64-linux-gnu/libnuma.so
+-- headers outputs: 
+-- sources outputs: 
+-- declarations_yaml outputs: 
+-- Performing Test COMPILER_SUPPORTS_NO_AVX256_SPLIT
+-- Performing Test COMPILER_SUPPORTS_NO_AVX256_SPLIT - Success
+-- Using ATen parallel backend: OMP
+-- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")  
+-- Check size of long double
+-- Check size of long double - done
+-- Performing Test COMPILER_SUPPORTS_LONG_DOUBLE
+-- Performing Test COMPILER_SUPPORTS_LONG_DOUBLE - Success
+-- Performing Test COMPILER_SUPPORTS_FLOAT128
+-- Performing Test COMPILER_SUPPORTS_FLOAT128 - Success
+-- Performing Test COMPILER_SUPPORTS_SSE2
+-- Performing Test COMPILER_SUPPORTS_SSE2 - Success
+-- Performing Test COMPILER_SUPPORTS_SSE4
+-- Performing Test COMPILER_SUPPORTS_SSE4 - Success
+-- Performing Test COMPILER_SUPPORTS_AVX
+-- Performing Test COMPILER_SUPPORTS_AVX - Success
+-- Performing Test COMPILER_SUPPORTS_FMA4
+-- Performing Test COMPILER_SUPPORTS_FMA4 - Success
+-- Performing Test COMPILER_SUPPORTS_AVX2
+-- Performing Test COMPILER_SUPPORTS_AVX2 - Success
+-- Performing Test COMPILER_SUPPORTS_AVX512F
+-- Performing Test COMPILER_SUPPORTS_AVX512F - Success
+-- Found OpenMP_C: -fopenmp (found version "4.5") 
+-- Found OpenMP_CXX: -fopenmp (found version "4.5") 
+-- Found OpenMP: TRUE (found version "4.5")  
+-- Performing Test COMPILER_SUPPORTS_OPENMP
+-- Performing Test COMPILER_SUPPORTS_OPENMP - Success
+-- Performing Test COMPILER_SUPPORTS_WEAK_ALIASES
+-- Performing Test COMPILER_SUPPORTS_WEAK_ALIASES - Success
+-- Performing Test COMPILER_SUPPORTS_BUILTIN_MATH
+-- Performing Test COMPILER_SUPPORTS_BUILTIN_MATH - Success
+-- Performing Test COMPILER_SUPPORTS_SYS_GETRANDOM
+-- Performing Test COMPILER_SUPPORTS_SYS_GETRANDOM - Success
+-- Configuring build for SLEEF-v3.6.0
+-- Using option `-Wall -Wno-unused -Wno-attributes -Wno-unused-result -Wno-psabi -ffp-contract=off -fno-math-errno -fno-trapping-math` to compile libsleef
+-- Building shared libs : OFF
+-- Building static test bins: OFF
+-- MPFR : LIB_MPFR-NOTFOUND
+-- GMP : LIBGMP-NOTFOUND
+-- RT : /usr/lib/x86_64-linux-gnu/librt.a
+-- FFTW3 : LIBFFTW3-NOTFOUND
+-- OPENSSL : 3.0.2
+-- SDE : SDE_COMMAND-NOTFOUND
+-- RUNNING_ON_TRAVIS : 
+-- COMPILER_SUPPORTS_OPENMP : 1
+-- Generating sources for unboxing kernels /usr/bin/python3;-m;torchgen.gen_executorch;--source-path=/usr/local/src/pytorch/test/edge/../../test/edge;--install-dir=/usr/local/src/pytorch/build/out;--tags-path=/usr/local/src/pytorch/test/edge/../../aten/src/ATen/native/tags.yaml;--aten-yaml-path=/usr/local/src/pytorch/test/edge/../../aten/src/ATen/native/native_functions.yaml;--use-aten-lib;--op-selection-yaml-path=/usr/local/src/pytorch/test/edge/../../test/edge/selected_operators.yaml;--custom-ops-yaml-path=/usr/local/src/pytorch/test/edge/../../test/edge/custom_ops.yaml
+-- Performing Test HAS_WNO_UNUSED_VARIABLE
+-- Performing Test HAS_WNO_UNUSED_VARIABLE - Success
+-- Performing Test HAS_WNO_MISSING_BRACES
+-- Performing Test HAS_WNO_MISSING_BRACES - Success
+-- Performing Test HAS_WNO_UNUSED_BUT_SET_PARAMETER
+-- Performing Test HAS_WNO_UNUSED_BUT_SET_PARAMETER - Success
+-- _GLIBCXX_USE_CXX11_ABI=1 is already defined as a cmake variable
+-- Using lib/python3.10/dist-packages as python relative installation path
+-- 
+-- ******** Summary ********
+-- General:
+--   CMake version         : 3.27.7
+--   CMake command         : /usr/local/lib/python3.10/dist-packages/cmake/data/bin/cmake
+--   System                : Linux
+--   C++ compiler          : /usr/bin/c++
+--   C++ compiler id       : GNU
+--   C++ compiler version  : 11.4.0
+--   Using ccache if found : ON
+--   Found ccache          : CCACHE_PROGRAM-NOTFOUND
+--   CXX flags             :  -D_GLIBCXX_USE_CXX11_ABI=1 -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOROCTRACER -DUSE_FBGEMM -DUSE_QNNPACK -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=range-loop-construct -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wunused-local-typedefs -Wno-unused-parameter -Wno-unused-function -Wno-unused-result -Wno-strict-overflow -Wno-strict-aliasing -Wno-error=deprecated-declarations -Wno-stringop-overflow -Wno-psabi -Wno-error=pedantic -Wno-error=redundant-decls -Wno-error=old-style-cast -fdiagnostics-color=always -faligned-new -Wno-unused-but-set-variable -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Werror=cast-function-type -Wno-stringop-overflow
+--   Build type            : Release
+--   Compile definitions   : ONNX_ML=1;ONNXIFI_ENABLE_EXT=1;ONNX_NAMESPACE=onnx_torch;HAVE_MMAP=1;_FILE_OFFSET_BITS=64;HAVE_SHM_OPEN=1;HAVE_SHM_UNLINK=1;HAVE_MALLOC_USABLE_SIZE=1;USE_EXTERNAL_MZCRC;MINIZ_DISABLE_ZIP_READER_CRC32_CHECKS;USE_FLASH_ATTENTION
+--   CMAKE_PREFIX_PATH     : /usr/local/lib/python3.10/dist-packages;/usr/local/nvidia
+--   CMAKE_INSTALL_PREFIX  : /usr/local/src/pytorch/torch
+--   USE_GOLD_LINKER       : OFF
+-- 
+--   TORCH_VERSION         : 2.0.0
+--   CAFFE2_VERSION        : 2.0.0
+--   BUILD_CAFFE2          : OFF
+--   BUILD_CAFFE2_OPS      : OFF
+--   BUILD_STATIC_RUNTIME_BENCHMARK: OFF
+--   BUILD_TENSOREXPR_BENCHMARK: OFF
+--   BUILD_NVFUSER_BENCHMARK: OFF
+--   BUILD_BINARY          : OFF
+--   BUILD_CUSTOM_PROTOBUF : ON
+--     Link local protobuf : ON
+--   BUILD_DOCS            : OFF
+--   BUILD_PYTHON          : True
+--     Python version      : 3.10.12
+--     Python executable   : /usr/bin/python3
+--     Pythonlibs version  : 3.10.12
+--     Python library      : /usr/lib/x86_64-linux-gnu/libpython3.10.so.1.0
+--     Python includes     : /usr/include/python3.10
+--     Python site-packages: lib/python3.10/dist-packages
+--   BUILD_SHARED_LIBS     : ON
+--   CAFFE2_USE_MSVC_STATIC_RUNTIME     : OFF
+--   BUILD_TEST            : True
+--   BUILD_JNI             : OFF
+--   BUILD_MOBILE_AUTOGRAD : OFF
+--   BUILD_LITE_INTERPRETER: OFF
+--   INTERN_BUILD_MOBILE   : 
+--   TRACING_BASED         : OFF
+--   USE_BLAS              : 1
+--     BLAS                : open
+--     BLAS_HAS_SBGEMM     : 
+--   USE_LAPACK            : 1
+--     LAPACK              : open
+--   USE_ASAN              : OFF
+--   USE_TSAN              : OFF
+--   USE_CPP_CODE_COVERAGE : OFF
+--   USE_CUDA              : 1
+--     Split CUDA          : 
+--     CUDA static link    : OFF
+--     USE_CUDNN           : 1
+--     USE_EXPERIMENTAL_CUDNN_V8_API: ON
+--     CUDA version        : 11.8
+--     USE_FLASH_ATTENTION : ON
+--     cuDNN version       : 8.9.6
+--     CUDA root directory : /usr/local/nvidia
+--     CUDA library        : /usr/local/nvidia/lib64/stubs/libcuda.so
+--     cudart library      : /usr/local/nvidia/lib64/libcudart.so
+--     cublas library      : /usr/local/nvidia/lib64/libcublas.so;/usr/local/nvidia/lib64/libcublasLt.so
+--     cufft library       : /usr/local/nvidia/lib64/libcufft.so
+--     curand library      : /usr/local/nvidia/lib64/libcurand.so
+--     cuDNN library       : /usr/lib/x86_64-linux-gnu/libcudnn.so
+--     nvrtc               : /usr/local/nvidia/lib64/libnvrtc.so
+--     CUDA include path   : /usr/local/nvidia/include
+--     NVCC executable     : /usr/local/nvidia/bin/nvcc
+--     CUDA compiler       : /usr/local/nvidia/bin/nvcc
+--     CUDA flags          :  -Xfatbin -compress-all -DONNX_NAMESPACE=onnx_torch -gencode arch=compute_60,code=sm_60 -gencode arch=compute_61,code=sm_61 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86 -gencode arch=compute_89,code=sm_89 -gencode arch=compute_90,code=sm_90 -gencode arch=compute_90,code=compute_90 -Xcudafe --diag_suppress=cc_clobber_ignored,--diag_suppress=integer_sign_change,--diag_suppress=useless_using_declaration,--diag_suppress=set_but_not_used,--diag_suppress=field_without_dll_interface,--diag_suppress=base_class_has_different_dll_interface,--diag_suppress=dll_interface_conflict_none_assumed,--diag_suppress=dll_interface_conflict_dllexport_assumed,--diag_suppress=implicit_return_from_non_void_function,--diag_suppress=unsigned_compare_with_zero,--diag_suppress=declared_but_not_referenced,--diag_suppress=bad_friend_decl --expt-relaxed-constexpr --expt-extended-lambda  -Wno-deprecated-gpu-targets --expt-extended-lambda -DCUB_WRAPPED_NAMESPACE=at_cuda_detail -DCUDA_HAS_FP16=1 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__
+--     CUDA host compiler  : 
+--     CUDA --device-c     : OFF
+--     USE_TENSORRT        : OFF
+--   USE_ROCM              : OFF
+--   BUILD_NVFUSER         : ON
+--   USE_EIGEN_FOR_BLAS    : ON
+--   USE_FBGEMM            : ON
+--     USE_FAKELOWP          : OFF
+--   USE_KINETO            : ON
+--   USE_FFMPEG            : 1
+--   USE_GFLAGS            : OFF
+--   USE_GLOG              : OFF
+--   USE_LEVELDB           : OFF
+--   USE_LITE_PROTO        : OFF
+--   USE_LMDB              : OFF
+--   USE_METAL             : OFF
+--   USE_PYTORCH_METAL     : OFF
+--   USE_PYTORCH_METAL_EXPORT     : OFF
+--   USE_MPS               : OFF
+--   USE_FFTW              : OFF
+--   USE_MKL               : OFF
+--   USE_MKLDNN            : 1
+--   USE_MKLDNN_ACL        : OFF
+--   USE_MKLDNN_CBLAS      : OFF
+--   USE_UCC               : OFF
+--   USE_ITT               : ON
+--   USE_NCCL              : ON
+--     USE_SYSTEM_NCCL     : OFF
+--     USE_NCCL_WITH_UCC   : OFF
+--   USE_NNPACK            : ON
+--   USE_NUMPY             : ON
+--   USE_OBSERVERS         : ON
+--   USE_OPENCL            : OFF
+--   USE_OPENCV            : 1
+--     OpenCV version      : 4.7.0
+--   USE_OPENMP            : ON
+--   USE_TBB               : OFF
+--   USE_VULKAN            : OFF
+--   USE_PROF              : OFF
+--   USE_QNNPACK           : ON
+--   USE_PYTORCH_QNNPACK   : ON
+--   USE_XNNPACK           : ON
+--   USE_REDIS             : OFF
+--   USE_ROCKSDB           : OFF
+--   USE_ZMQ               : OFF
+--   USE_DISTRIBUTED       : ON
+--     USE_MPI               : ON
+--     USE_GLOO              : ON
+--     USE_GLOO_WITH_OPENSSL : OFF
+--     USE_TENSORPIPE        : ON
+--   Public Dependencies  : 
+--   Private Dependencies : Threads::Threads;pthreadpool;cpuinfo;qnnpack;pytorch_qnnpack;nnpack;XNNPACK;fbgemm;/usr/lib/x86_64-linux-gnu/libnuma.so;opencv_core;opencv_highgui;opencv_imgproc;opencv_imgcodecs;opencv_optflow;opencv_videoio;opencv_video;/usr/local/lib/libavcodec.so;/usr/local/lib/libavformat.so;/usr/local/lib/libavutil.so;/usr/local/lib/libswscale.so;/usr/local/lib/libswresample.so;ittnotify;fp16;/usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi_cxx.so;/usr/lib/x86_64-linux-gnu/openmpi/lib/libmpi.so;caffe2::openmp;tensorpipe;gloo;foxi_loader;rt;fmt::fmt-header-only;kineto;gcc_s;gcc;dl
+--   USE_COREML_DELEGATE     : OFF
+--   BUILD_LAZY_TS_BACKEND   : ON
+--   TORCH_DISABLE_GPU_ASSERTS : ON
+
+
+***** TorchVision configuration:
+Building wheel torchvision-0.15.2a0+fa99a53
+Compiling extensions with following flags:
+  FORCE_CUDA: True
+  DEBUG: False
+  TORCHVISION_USE_PNG: True
+  TORCHVISION_USE_JPEG: True
+  TORCHVISION_USE_NVJPEG: True
+  TORCHVISION_USE_FFMPEG: True
+  TORCHVISION_USE_VIDEO_CODEC: True
+  NVCC_FLAGS: 
+Found PNG library
+Building torchvision with PNG image support
+  libpng version: 1.6.37
+  libpng include path: /usr/include/libpng16
+Running build on conda-build: False
+Running build on conda: False
+Building torchvision with JPEG image support
+Building torchvision with NVJPEG image support
+Building torchvision with ffmpeg support
+  ffmpeg version: b"ffmpeg version 5.1.2 Copyright (c) 2000-2022 the FFmpeg developers\nbuilt with gcc 11 (Ubuntu 11.4.0-1ubuntu1~22.04)\nconfiguration: --enable-cuda --enable-cuvid --enable-nvdec --enable-nvenc --extra-cflags='-I/usr/local/cuda/include/ -fPIC' --extra-ldflags='-L/usr/local/cuda/lib64/ -Wl,-Bsymbolic' --enable-shared --disable-static --enable-gpl --enable-libv4l2 --enable-libvorbis --enable-libvpx --enable-libwebp --enable-libxvid --enable-libopus --enable-pic --enable-libass --enable-libx264 --enable-libx265\nlibavutil      57. 28.100 / 57. 28.100\nlibavcodec     59. 37.100 / 59. 37.100\nlibavformat    59. 27.100 / 59. 27.100\nlibavdevice    59.  7.100 / 59.  7.100\nlibavfilter     8. 44.100 /  8. 44.100\nlibswscale      6.  7.100 /  6.  7.100\nlibswresample   4.  7.100 /  4.  7.100\nlibpostproc    56.  6.100 / 56.  6.100\n"
+  ffmpeg include path: ['/usr/local/include', '/usr/local/include/x86_64-linux-gnu']
+  ffmpeg library_dir: ['/usr/local/lib', '/usr/local/lib/x86_64-linux-gnu']
+Building torchvision without video codec support
+
+
+***** TorchAudio configuration:
+-- Git branch: HEAD
+-- Git SHA: 31de77dad5c89274451b3f5c4bcb630be12787c4
+-- Git tag: v2.0.2
+-- PyTorch dependency: torch
+-- Building version 2.0.2+31de77d
+ --- Initializing submodules
+ --- Initialized submodule
+ --- Fetching v1.2.12.tar.gz
+ --- Fetching bzip2-1.0.8.tar.gz
+ --- Fetching xz-5.2.5.tar.gz
+ --- Fetching opencore-amr-0.1.5.tar.gz
+ --- Fetching lame-3.99.5.tar.gz
+ --- Fetching libogg-1.3.3.tar.gz
+ --- Fetching flac-1.3.2.tar.xz
+ --- Fetching libvorbis-1.3.6.tar.gz
+ --- Fetching opus-1.3.1.tar.gz
+ --- Fetching opusfile-0.12.tar.gz
+ --- Fetching sox-14.4.2.tar.bz2
+Excluding torchaudio.prototype from the package.
+running bdist_wheel
+running build
+running build_py
+creating build
+creating build/lib.linux-x86_64-cpython-310
+creating build/lib.linux-x86_64-cpython-310/torchaudio
+copying torchaudio/version.py -> build/lib.linux-x86_64-cpython-310/torchaudio
+copying torchaudio/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio
+copying torchaudio/kaldi_io.py -> build/lib.linux-x86_64-cpython-310/torchaudio
+creating build/lib.linux-x86_64-cpython-310/torchaudio/backend
+copying torchaudio/backend/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/backend
+copying torchaudio/backend/utils.py -> build/lib.linux-x86_64-cpython-310/torchaudio/backend
+copying torchaudio/backend/common.py -> build/lib.linux-x86_64-cpython-310/torchaudio/backend
+copying torchaudio/backend/no_backend.py -> build/lib.linux-x86_64-cpython-310/torchaudio/backend
+copying torchaudio/backend/soundfile_backend.py -> build/lib.linux-x86_64-cpython-310/torchaudio/backend
+copying torchaudio/backend/sox_io_backend.py -> build/lib.linux-x86_64-cpython-310/torchaudio/backend
+creating build/lib.linux-x86_64-cpython-310/torchaudio/compliance
+copying torchaudio/compliance/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/compliance
+copying torchaudio/compliance/kaldi.py -> build/lib.linux-x86_64-cpython-310/torchaudio/compliance
+creating build/lib.linux-x86_64-cpython-310/torchaudio/models
+copying torchaudio/models/deepspeech.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models
+copying torchaudio/models/emformer.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models
+copying torchaudio/models/rnnt_decoder.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models
+copying torchaudio/models/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models
+copying torchaudio/models/_hdemucs.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models
+copying torchaudio/models/tacotron2.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models
+copying torchaudio/models/conformer.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models
+copying torchaudio/models/conv_tasnet.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models
+copying torchaudio/models/rnnt.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models
+copying torchaudio/models/wav2letter.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models
+copying torchaudio/models/wavernn.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models
+creating build/lib.linux-x86_64-cpython-310/torchaudio/transforms
+copying torchaudio/transforms/_transforms.py -> build/lib.linux-x86_64-cpython-310/torchaudio/transforms
+copying torchaudio/transforms/_multi_channel.py -> build/lib.linux-x86_64-cpython-310/torchaudio/transforms
+copying torchaudio/transforms/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/transforms
+creating build/lib.linux-x86_64-cpython-310/torchaudio/_extension
+copying torchaudio/_extension/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/_extension
+copying torchaudio/_extension/utils.py -> build/lib.linux-x86_64-cpython-310/torchaudio/_extension
+creating build/lib.linux-x86_64-cpython-310/torchaudio/io
+copying torchaudio/io/_compat.py -> build/lib.linux-x86_64-cpython-310/torchaudio/io
+copying torchaudio/io/_stream_writer.py -> build/lib.linux-x86_64-cpython-310/torchaudio/io
+copying torchaudio/io/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/io
+copying torchaudio/io/_stream_reader.py -> build/lib.linux-x86_64-cpython-310/torchaudio/io
+copying torchaudio/io/_playback.py -> build/lib.linux-x86_64-cpython-310/torchaudio/io
+creating build/lib.linux-x86_64-cpython-310/torchaudio/_backend
+copying torchaudio/_backend/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/_backend
+copying torchaudio/_backend/utils.py -> build/lib.linux-x86_64-cpython-310/torchaudio/_backend
+creating build/lib.linux-x86_64-cpython-310/torchaudio/_internal
+copying torchaudio/_internal/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/_internal
+copying torchaudio/_internal/module_utils.py -> build/lib.linux-x86_64-cpython-310/torchaudio/_internal
+creating build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/ljspeech.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/vctk.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/musdb_hq.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/fluentcommands.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/dr_vctk.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/librimix.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/utils.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/cmuarctic.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/cmudict.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/iemocap.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/gtzan.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/librilight_limited.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/voxceleb1.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/speechcommands.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/yesno.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/libritts.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/quesst14.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/tedlium.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/snips.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/commonvoice.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+copying torchaudio/datasets/librispeech.py -> build/lib.linux-x86_64-cpython-310/torchaudio/datasets
+creating build/lib.linux-x86_64-cpython-310/torchaudio/sox_effects
+copying torchaudio/sox_effects/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/sox_effects
+copying torchaudio/sox_effects/sox_effects.py -> build/lib.linux-x86_64-cpython-310/torchaudio/sox_effects
+creating build/lib.linux-x86_64-cpython-310/torchaudio/utils
+copying torchaudio/utils/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/utils
+copying torchaudio/utils/download.py -> build/lib.linux-x86_64-cpython-310/torchaudio/utils
+copying torchaudio/utils/sox_utils.py -> build/lib.linux-x86_64-cpython-310/torchaudio/utils
+copying torchaudio/utils/ffmpeg_utils.py -> build/lib.linux-x86_64-cpython-310/torchaudio/utils
+creating build/lib.linux-x86_64-cpython-310/torchaudio/functional
+copying torchaudio/functional/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/functional
+copying torchaudio/functional/filtering.py -> build/lib.linux-x86_64-cpython-310/torchaudio/functional
+copying torchaudio/functional/functional.py -> build/lib.linux-x86_64-cpython-310/torchaudio/functional
+creating build/lib.linux-x86_64-cpython-310/torchaudio/pipelines
+copying torchaudio/pipelines/_source_separation_pipeline.py -> build/lib.linux-x86_64-cpython-310/torchaudio/pipelines
+copying torchaudio/pipelines/rnnt_pipeline.py -> build/lib.linux-x86_64-cpython-310/torchaudio/pipelines
+copying torchaudio/pipelines/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/pipelines
+creating build/lib.linux-x86_64-cpython-310/torchaudio/models/decoder
+copying torchaudio/models/decoder/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models/decoder
+copying torchaudio/models/decoder/_ctc_decoder.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models/decoder
+creating build/lib.linux-x86_64-cpython-310/torchaudio/models/wav2vec2
+copying torchaudio/models/wav2vec2/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models/wav2vec2
+copying torchaudio/models/wav2vec2/components.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models/wav2vec2
+copying torchaudio/models/wav2vec2/model.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models/wav2vec2
+copying torchaudio/models/wav2vec2/wavlm_attention.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models/wav2vec2
+creating build/lib.linux-x86_64-cpython-310/torchaudio/models/wav2vec2/utils
+copying torchaudio/models/wav2vec2/utils/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models/wav2vec2/utils
+copying torchaudio/models/wav2vec2/utils/import_fairseq.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models/wav2vec2/utils
+copying torchaudio/models/wav2vec2/utils/import_huggingface.py -> build/lib.linux-x86_64-cpython-310/torchaudio/models/wav2vec2/utils
+creating build/lib.linux-x86_64-cpython-310/torchaudio/pipelines/_wav2vec2
+copying torchaudio/pipelines/_wav2vec2/impl.py -> build/lib.linux-x86_64-cpython-310/torchaudio/pipelines/_wav2vec2
+copying torchaudio/pipelines/_wav2vec2/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/pipelines/_wav2vec2
+copying torchaudio/pipelines/_wav2vec2/utils.py -> build/lib.linux-x86_64-cpython-310/torchaudio/pipelines/_wav2vec2
+creating build/lib.linux-x86_64-cpython-310/torchaudio/pipelines/_tts
+copying torchaudio/pipelines/_tts/interface.py -> build/lib.linux-x86_64-cpython-310/torchaudio/pipelines/_tts
+copying torchaudio/pipelines/_tts/impl.py -> build/lib.linux-x86_64-cpython-310/torchaudio/pipelines/_tts
+copying torchaudio/pipelines/_tts/__init__.py -> build/lib.linux-x86_64-cpython-310/torchaudio/pipelines/_tts
+copying torchaudio/pipelines/_tts/utils.py -> build/lib.linux-x86_64-cpython-310/torchaudio/pipelines/_tts
+running build_ext
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- The CUDA compiler identification is NVIDIA 11.8.89
+-- Detecting CUDA compiler ABI info
+-- Detecting CUDA compiler ABI info - done
+-- Check for working CUDA compiler: /usr/local/nvidia/bin/nvcc - skipped
+-- Detecting CUDA compile features
+-- Detecting CUDA compile features - done
+-- Found CUDA: /usr/local/nvidia (found version "11.8") 
+-- Caffe2: CUDA detected: 11.8
+-- Caffe2: CUDA nvcc is: /usr/local/nvidia/bin/nvcc
+-- Caffe2: CUDA toolkit directory: /usr/local/nvidia
+-- Caffe2: Header version is: 11.8
+-- /usr/local/nvidia/lib64/libnvrtc.so shorthash is 672ee683
+-- USE_CUDNN is set to 0. Compiling without cuDNN support
+-- Added CUDA NVCC flags for: -gencode;arch=compute_60,code=sm_60;-gencode;arch=compute_61,code=sm_61;-gencode;arch=compute_70,code=sm_70;-gencode;arch=compute_75,code=sm_75;-gencode;arch=compute_80,code=sm_80;-gencode;arch=compute_86,code=sm_86;-gencode;arch=compute_89,code=sm_89;-gencode;arch=compute_90,code=sm_90;-gencode;arch=compute_90,code=compute_90
+-- Found Torch: /usr/local/lib/python3.10/dist-packages/torch/lib/libtorch.so  
+-- Found OpenMP_C: -fopenmp (found version "4.5") 
+-- Found OpenMP_CXX: -fopenmp (found version "4.5") 
+-- Found OpenMP: TRUE (found version "4.5")  
+-- Could not find ccache. Consider installing ccache to speed up compilation.
+-- Found PkgConfig: /usr/bin/pkg-config (found version "0.29.2") 
+-- FFMPEG_ROOT=
+-- Found FFMPEG: /usr/local/include (found suitable version "5.1.2", minimum required is "4.1") found components: avdevice avfilter avformat avcodec avutil 
+
+
+***** TorchData configuration:
+Processing /usr/local/src/data
+  Installing build dependencies: started
+  Installing build dependencies: still running...
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: urllib3>=1.25 in /usr/local/lib/python3.10/dist-packages (from torchdata==0.6.1+e1feeb2) (2.1.0)
+Requirement already satisfied: requests in /usr/local/lib/python3.10/dist-packages (from torchdata==0.6.1+e1feeb2) (2.31.0)
+Requirement already satisfied: torch>1.13 in /usr/local/lib/python3.10/dist-packages (from torchdata==0.6.1+e1feeb2) (2.0.0a0+gite9ebda2)
+Requirement already satisfied: filelock in /usr/local/lib/python3.10/dist-packages (from torch>1.13->torchdata==0.6.1+e1feeb2) (3.13.1)
+Requirement already satisfied: typing-extensions in /usr/local/lib/python3.10/dist-packages (from torch>1.13->torchdata==0.6.1+e1feeb2) (4.8.0)
+Requirement already satisfied: sympy in /usr/local/lib/python3.10/dist-packages (from torch>1.13->torchdata==0.6.1+e1feeb2) (1.12)
+Requirement already satisfied: networkx in /usr/local/lib/python3.10/dist-packages (from torch>1.13->torchdata==0.6.1+e1feeb2) (3.2.1)
+Requirement already satisfied: jinja2 in /usr/local/lib/python3.10/dist-packages (from torch>1.13->torchdata==0.6.1+e1feeb2) (3.1.2)
+Requirement already satisfied: charset-normalizer<4,>=2 in /usr/local/lib/python3.10/dist-packages (from requests->torchdata==0.6.1+e1feeb2) (3.3.2)
+Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.10/dist-packages (from requests->torchdata==0.6.1+e1feeb2) (3.4)
+Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.10/dist-packages (from requests->torchdata==0.6.1+e1feeb2) (2023.11.17)
+Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.10/dist-packages (from jinja2->torch>1.13->torchdata==0.6.1+e1feeb2) (2.1.3)
+Requirement already satisfied: mpmath>=0.19 in /usr/local/lib/python3.10/dist-packages (from sympy->torch>1.13->torchdata==0.6.1+e1feeb2) (1.3.0)
+Building wheels for collected packages: torchdata
+  Building wheel for torchdata (pyproject.toml): started
+  Building wheel for torchdata (pyproject.toml): finished with status 'done'
+  Created wheel for torchdata: filename=torchdata-0.6.1+e1feeb2-py3-none-any.whl size=174847 sha256=086e6273b1d1ce068303338567a8a6171ab903340eeb94280b80790e911bb488
+  Stored in directory: /tmp/pip-ephem-wheel-cache-puc02i9u/wheels/03/63/ba/4eb0159d9d8a6de4e9e51d4a682ee4243591d1322d31fa418a
+Successfully built torchdata
+Installing collected packages: torchdata
+Successfully installed torchdata-0.6.1+e1feeb2
+
+
+***** TorchText configuration:
+-- Building version 0.15.2a0+4571036
+ --- Initializing submodules
+ --- Initialized submodule
+running clean
+running install
+running bdist_egg
+running egg_info
+creating torchtext.egg-info
+writing torchtext.egg-info/PKG-INFO
+writing dependency_links to torchtext.egg-info/dependency_links.txt
+writing requirements to torchtext.egg-info/requires.txt
+writing top-level names to torchtext.egg-info/top_level.txt
+writing manifest file 'torchtext.egg-info/SOURCES.txt'
+reading manifest file 'torchtext.egg-info/SOURCES.txt'
+adding license file 'LICENSE'
+writing manifest file 'torchtext.egg-info/SOURCES.txt'
+installing library code to build/bdist.linux-x86_64/egg
+running install_lib
+running build_py
+creating build
+creating build/lib.linux-x86_64-cpython-310
+creating build/lib.linux-x86_64-cpython-310/torchtext
+copying torchtext/version.py -> build/lib.linux-x86_64-cpython-310/torchtext
+copying torchtext/__init__.py -> build/lib.linux-x86_64-cpython-310/torchtext
+copying torchtext/utils.py -> build/lib.linux-x86_64-cpython-310/torchtext
+copying torchtext/functional.py -> build/lib.linux-x86_64-cpython-310/torchtext
+copying torchtext/transforms.py -> build/lib.linux-x86_64-cpython-310/torchtext
+copying torchtext/_extension.py -> build/lib.linux-x86_64-cpython-310/torchtext
+copying torchtext/_download_hooks.py -> build/lib.linux-x86_64-cpython-310/torchtext
+creating build/lib.linux-x86_64-cpython-310/torchtext/vocab
+copying torchtext/vocab/vocab.py -> build/lib.linux-x86_64-cpython-310/torchtext/vocab
+copying torchtext/vocab/__init__.py -> build/lib.linux-x86_64-cpython-310/torchtext/vocab
+copying torchtext/vocab/vocab_factory.py -> build/lib.linux-x86_64-cpython-310/torchtext/vocab
+copying torchtext/vocab/vectors.py -> build/lib.linux-x86_64-cpython-310/torchtext/vocab
+creating build/lib.linux-x86_64-cpython-310/torchtext/models
+copying torchtext/models/__init__.py -> build/lib.linux-x86_64-cpython-310/torchtext/models
+creating build/lib.linux-x86_64-cpython-310/torchtext/prototype
+copying torchtext/prototype/__init__.py -> build/lib.linux-x86_64-cpython-310/torchtext/prototype
+copying torchtext/prototype/vocab_factory.py -> build/lib.linux-x86_64-cpython-310/torchtext/prototype
+copying torchtext/prototype/vectors.py -> build/lib.linux-x86_64-cpython-310/torchtext/prototype
+copying torchtext/prototype/transforms.py -> build/lib.linux-x86_64-cpython-310/torchtext/prototype
+copying torchtext/prototype/generate.py -> build/lib.linux-x86_64-cpython-310/torchtext/prototype
+creating build/lib.linux-x86_64-cpython-310/torchtext/_internal
+copying torchtext/_internal/__init__.py -> build/lib.linux-x86_64-cpython-310/torchtext/_internal
+copying torchtext/_internal/module_utils.py -> build/lib.linux-x86_64-cpython-310/torchtext/_internal
+creating build/lib.linux-x86_64-cpython-310/torchtext/nn
+copying torchtext/nn/__init__.py -> build/lib.linux-x86_64-cpython-310/torchtext/nn
+creating build/lib.linux-x86_64-cpython-310/torchtext/data
+copying torchtext/data/__init__.py -> build/lib.linux-x86_64-cpython-310/torchtext/data
+copying torchtext/data/utils.py -> build/lib.linux-x86_64-cpython-310/torchtext/data
+copying torchtext/data/metrics.py -> build/lib.linux-x86_64-cpython-310/torchtext/data
+copying torchtext/data/functional.py -> build/lib.linux-x86_64-cpython-310/torchtext/data
+copying torchtext/data/datasets_utils.py -> build/lib.linux-x86_64-cpython-310/torchtext/data
+creating build/lib.linux-x86_64-cpython-310/torchtext/experimental
+copying torchtext/experimental/__init__.py -> build/lib.linux-x86_64-cpython-310/torchtext/experimental
+copying torchtext/experimental/vocab_factory.py -> build/lib.linux-x86_64-cpython-310/torchtext/experimental
+copying torchtext/experimental/vectors.py -> build/lib.linux-x86_64-cpython-310/torchtext/experimental
+copying torchtext/experimental/transforms.py -> build/lib.linux-x86_64-cpython-310/torchtext/experimental
+creating build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/ag_news.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/cnndm.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/penntreebank.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/sogounews.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/cc100.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/rte.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/__init__.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/cola.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/qnli.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/wikitext2.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/iwslt2016.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/udpos.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/squad2.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/qqp.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/yelpreviewfull.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/yelpreviewpolarity.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/yahooanswers.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/imdb.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/iwslt2017.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/squad1.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/dbpedia.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/conll2000chunking.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/amazonreviewfull.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/multi30k.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/mrpc.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/amazonreviewpolarity.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/wnli.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/wikitext103.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/stsb.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/enwik9.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/sst2.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+copying torchtext/datasets/mnli.py -> build/lib.linux-x86_64-cpython-310/torchtext/datasets
+creating build/lib.linux-x86_64-cpython-310/torchtext/models/roberta
+copying torchtext/models/roberta/modules.py -> build/lib.linux-x86_64-cpython-310/torchtext/models/roberta
+copying torchtext/models/roberta/__init__.py -> build/lib.linux-x86_64-cpython-310/torchtext/models/roberta
+copying torchtext/models/roberta/bundler.py -> build/lib.linux-x86_64-cpython-310/torchtext/models/roberta
+copying torchtext/models/roberta/model.py -> build/lib.linux-x86_64-cpython-310/torchtext/models/roberta
+creating build/lib.linux-x86_64-cpython-310/torchtext/models/t5
+copying torchtext/models/t5/modules.py -> build/lib.linux-x86_64-cpython-310/torchtext/models/t5
+copying torchtext/models/t5/t5_transform.py -> build/lib.linux-x86_64-cpython-310/torchtext/models/t5
+copying torchtext/models/t5/__init__.py -> build/lib.linux-x86_64-cpython-310/torchtext/models/t5
+copying torchtext/models/t5/bundler.py -> build/lib.linux-x86_64-cpython-310/torchtext/models/t5
+copying torchtext/models/t5/model.py -> build/lib.linux-x86_64-cpython-310/torchtext/models/t5
+creating build/lib.linux-x86_64-cpython-310/torchtext/nn/modules
+copying torchtext/nn/modules/multiheadattention.py -> build/lib.linux-x86_64-cpython-310/torchtext/nn/modules
+copying torchtext/nn/modules/__init__.py -> build/lib.linux-x86_64-cpython-310/torchtext/nn/modules
+running build_ext
+-- The C compiler identification is GNU 11.4.0
+-- The CXX compiler identification is GNU 11.4.0
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/bin/c++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- VERSION: 0.1.95
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- Not Found TCMalloc: TCMALLOC_LIB-NOTFOUND
+
+
+
+ ##### PyTorch: Version and Device check #####
+
+
+*** PyTorch version      :  2.0.0a0+gite9ebda2
+   *** PyTorch Audio     :  2.0.2+31de77d
+   *** PyTorch Vision    :  0.15.2a0+fa99a53
+   *** PyTorch Data      :  0.6.1+e1feeb2
+   *** PyTorch Text      :  0.15.2a0+4571036
