@@ -200,6 +200,7 @@ def return_BUILD_TensorFlow(tensorflow_version, cuda_version, dnn_used, indir, a
     if cuda_version is not None:
         tmp = replace_line(tmp, "ENV CTPO_TF_CONFIG", f"ENV CTPO_TF_CONFIG=\"--config=cuda\"")
         tmp = replace_line(tmp, "ENV TF_NEED_CUDA=0", f"ENV TF_NEED_CUDA=1")
+        tmp = replace_line(tmp, "ENV TF_CUDA_CLANG=0", f"ENV TF_CUDA_CLANG=1")
         tmp = replace_line(tmp, "ENV TF_CUDA_COMPUTE_CAPABILITIES", f"ENV TF_CUDA_COMPUTE_CAPABILITIES={dnn_used}")
 
     tmp = replace_line(tmp, "ENV LATEST_BAZELISK", f"ENV LATEST_BAZELISK={args.latest_bazelisk}")
@@ -297,6 +298,10 @@ def build_dockerfile(input, indir, release, tensorflow_version, pytorch_version,
     repl = f"ARG CTPO_NUMPROC={args.numproc}"
     dockertxt = replace_line(dockertxt, "#==CTPO_NUMPROC==#", repl)
 
+    #==CTPO_CLANG_VERSION==#
+    repl = f"ENV CTPO_CLANG_VERSION={args.clang_version}"
+    dockertxt = replace_line(dockertxt, "#==CTPO_CLANG_VERSION==#", repl)
+
     #==APT_TORCH==#
     repl = return_APT_TORCH(pytorch_version, indir)
     dockertxt = replace_line(dockertxt, "#==APT_TORCH==#", repl)
@@ -389,6 +394,7 @@ def main():
     parser.add_argument("--torchaudio_version",  help="TorchAudio version",  default="")
     parser.add_argument("--torchdata_version",  help="TorchData version",  default="")
     parser.add_argument("--torchtext_version",  help="TorchText version",  default="")
+    parser.add_argument("--clang_version", help="Clang version", default="")
     args = parser.parse_args()
 
     if not os.path.isfile(args.input):
@@ -465,6 +471,9 @@ def main():
     if tensorflow_version is not None:
         if isBlank(args.latest_bazelisk):
             error_exit(f"Error: latest_bazelisk required when TF build requested")
+
+    if isBlank(args.clang_version):
+        error_exit(f"Error: clang_version required")
 
     if isBlank(args.ffmpeg_version):
         error_exit(f"Error: ffmpeg_version required")
