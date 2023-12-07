@@ -1,0 +1,26 @@
+  CTPO_FROM               : nvidia/cuda:11.8.0-devel-ubuntu22.04
+docker buildx build --progress plain --platform linux/amd64  \
+  --build-arg CTPO_NUMPROC="32" \
+  --tag="cuda_tensorflow_opencv:11.8.0_2.14.1_4.8.0-20231201" \
+  -f BuildDetails/20231201/cuda_tensorflow_opencv-11.8.0_2.14.1_4.8.0-20231201/Dockerfile \
+  .
+
+
+***** PyTorch configuration:
+No PyTorch built
+
+
+***** TorchVision configuration:
+No TorchVision built
+
+
+***** TorchAudio configuration:
+No TorchAudio built
+
+
+***** TorchData configuration:
+No TorchData built
+
+
+***** TorchText configuration:
+No TorchText built
