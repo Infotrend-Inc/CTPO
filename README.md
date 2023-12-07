@@ -1,6 +1,6 @@
 # CTPO: CUDA + TensorFlow + PyTorch + OpenCV Docker containers
 
-Latest release: 20231120
+Latest release: 20231201
 
 <!-- vscode-markdown-toc -->
 * 1. [Builds and Notes](#BuildsandNotes)
@@ -112,7 +112,7 @@ Below you will see the result of this command for the `20231120` release:
 
 In this usage are multiple sections:
 - The `Docker Image tag ending` matches the software release tag.
-- The `Docker Runtime` explains the current default runtime. For `GPU` (CTPO) builds it is recommended to add `"default-runtime": "nvidia"` in the `/etc/docker/daemon.json` file and restart the docker daemon. Similarly, for `CPU` (TPO) builds, that `"default-runtime"` should be removed (or commented.) You can check the current status of your runtime by running: `docker info | grep "Default Runtime"`
+- The `Docker Runtime` explains the current default runtime. For `GPU` (CTPO) builds it is recommended to add `"default-runtime": "nvidia"` in the `/etc/docker/daemon.json` file and restart the docker daemon. Similarly, for `CPU` (TPO) builds, it is recommended that the `"default-runtime"` should be removed (or commented,) but because switching runtime on a system is not always achievable, we will use `NVIDIA_VISIBLE_DEVICES=void` ([details](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html).) You can check the current status of your runtime by running: `docker info | grep "Default Runtime"`
 - The `Available Docker images to be built` section allows you to select the possible build targets. For `GPU`, the `cuda_` variants. For `CPU` the non `cuda_` variants. Naming conventions and tags follow the guidelines specified in the "Tag naming conventions" section.
 - The `Jupyter Labs ready containers` are based on the containers built in the "Available Docker images[...]" and adding a running "Jupyter Labs" following the specific `Dockerfile` in the `Jupyter_build` directory. The list of built containers is limited to the most components per `CPU` and `GPU` to simplify distribution.
 
@@ -283,6 +283,7 @@ If you want to run it as a non-root user, add `-u $(id -u):$(id -g)` to the `doc
 
 ##  3. <a name='VersionHistory'></a>Version History
 
+- 20231201: Release with support for CUDA 11.8.0, TensorFlow 2.14.1, PyToch 2.1.1 and OpenCV 4.8.0
 - 20231120: Initial Release, with support for CUDA 11.8.0, TensorFlow 2.12.0, PyTorch 2.0.1 and OpenCV 4.7.0.
 - November 2023: Preparation for public release.
 - June 2023: engineered to support clean `Dockerfile` generation, supporting the same versions as 20231120 releases.
