@@ -472,3 +472,16 @@ docker_tag_push_core:
 #  % make JN_MODE="-unraid" docker_push_jup
 # - Update the README.md file with the new release tag + version history
 # - Commit and push the changes to GitHub (in the branch created at the beginning)
+# - On Github, "Open a pull request", 
+#   use the value of CTPO_RELEASE for the release name (ie the YYYYMMDD value)
+#   add PR modifications as a summry of the content of the commits,
+#   create the PR, add a self-approve message, merge and delete the branch
+# - on the build system, checkout main and pull the changes
+#  % git checkout main
+#  % git pull
+# - delete the temporary branch (named after the CTPO_RELEASE value)
+#  % git branch -d YYYYMMDD
+# - Tag the release on GitHub
+#  % git tag YYYYMMDD
+#  % git push origin YYYYMMDD
+# - Create a release on GitHub using the YYYYMMDD tag, add the release notes, and publish
