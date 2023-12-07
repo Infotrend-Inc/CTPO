@@ -46,6 +46,7 @@ RUN apt-get install -y \
     gcc \
     git \
     perl \
+    patchelf \
     pkg-config \
     protobuf-compiler \
     python3-dev \
@@ -128,6 +129,20 @@ RUN apt-get install -y \
   && apt-get clean
 
 #==CTPO_CUDA_APT==#
+
+#==CTPO_CLANG_VERSION==#
+RUN apt-get install -y lsb-release software-properties-common gnupg \
+  && mkdir /tmp/clang \
+  && cd /tmp/clang \
+  && wget https://apt.llvm.org/llvm.sh \
+  && chmod +x llvm.sh \
+  && ./llvm.sh ${CTPO_CLANG_VERSION} \
+  && cd / \
+  && rm -rf /tmp/clang
+RUN which clang-${CTPO_CLANG_VERSION} \
+  && which clang++-${CTPO_CLANG_VERSION} \
+  && clang-${CTPO_CLANG_VERSION} --version \
+  && clang++-${CTPO_CLANG_VERSION} --version
 
 #==CTPO_BUILD==#
 RUN touch /tmp/.${CTPO_BUILD}_build

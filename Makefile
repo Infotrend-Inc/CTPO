@@ -4,7 +4,7 @@ SHELL := /bin/bash
 .NOTPARALLEL:
 
 # Release to match data of Dockerfile and follow YYYYMMDD pattern
-CTPO_RELEASE=20231120
+CTPO_RELEASE=20231201
 
 # The default is not to build OpenCV non-free or build FFmpeg with libnpp, as those would make the images unredistributable 
 # Replace "free" by "unredistributable" if you need to use those for a personal build
@@ -55,30 +55,32 @@ DNN_ARCH_CUDA11=6.0,6.1,7.0,7.5,8.0,8.6,8.9,9.0
 DNN_ARCH_TORCH=6.0 6.1 7.0 7.5 8.0 8.6 8.9 9.0+PTX
 
 # According to https://opencv.org/releases/
-STABLE_OPENCV4=4.7.0
+STABLE_OPENCV4=4.8.0
 
 # FFmpeg
 # Release list: https://ffmpeg.org/download.html
 # Note: GPU extensions are added directly in the Dockerfile
-CTPO_FFMPEG_VERSION=5.1.2
+CTPO_FFMPEG_VERSION=5.1.4
 # https://github.com/FFmpeg/nv-codec-headers/releases
 CTPO_FFMPEG_NVCODEC="11.1.5.2"
 
 # TF2 CUDA11 minimum is 2.4.0
 # According to https://github.com/tensorflow/tensorflow/tags
 # Known working CUDA & CUDNN base version https://www.tensorflow.org/install/source#gpu
-# Find OS specific libcudnn file from https://ubuntu.pkgs.org/22.04/cuda-amd64/
-STABLE_TF2=2.12.0
-STABLE_TF2_CUDNN=8.6.0.163
+# Find OS specific libcudnn file from https://developer.download.nvidia.com/compute/redist/cudnn/
+STABLE_TF2=2.14.1
+STABLE_TF2_CUDNN=8.7.0.84
+
+CLANG_VERSION=16
 
 ## Information for build
 # https://github.com/bazelbuild/bazelisk
-LATEST_BAZELISK=1.17.0
+LATEST_BAZELISK=1.19.0
 
 # Magma
 # Release page: https://icl.utk.edu/magma/
 # Note: GPU targets (ie ARCH) are needed
-CTPO_MAGMA=2.7.1
+CTPO_MAGMA=2.7.2
 # Get ARCHs from https://bitbucket.org/icl/magma/src/master/Makefile
 CTPO_MAGMA_ARCH=Pascal Volta Turing Ampere Hopper
 
@@ -88,16 +90,16 @@ CTPO_MAGMA_ARCH=Pascal Volta Turing Ampere Hopper
 # https://pytorch.org/get-started/locally/
 # https://pytorch.org/get-started/pytorch-2.0/#getting-started
 # https://github.com/pytorch/pytorch/releases/tag/v2.0.1
-STABLE_TORCH=2.0.1
+STABLE_TORCH=2.1.1
 # Use release branch https://github.com/pytorch/vision
-CTPO_TORCHVISION="0.15.2"
+CTPO_TORCHVISION="0.16.1"
 # check compatibility from https://pytorch.org/audio/main/installation.html#compatibility-matrix
 # then use released branch at https://github.com/pytorch/audio
-CTPO_TORCHAUDIO="2.0.2"
+CTPO_TORCHAUDIO="2.1.1"
 # check compatibility from https://github.com/pytorch/text
-CTPO_TORCHTEXT="0.15.2"
-# check compatibility from https://github.com/pytorch/data
-CTPO_TORCHDATA="0.6.1"
+CTPO_TORCHTEXT="0.16.1"
+# check compatibility from https://github.com/pytorch/data and the release tags
+CTPO_TORCHDATA="0.7.1"
 
 ## Docker builder helper script & BuildDetails directory
 DFBH=./tools/Dockerfile_builder_helper.py
@@ -125,6 +127,9 @@ TPO_BUILDALL_P =pytorch_opencv-${STABLE_TORCH}_${STABLE_OPENCV4}
 TPO_BUILDALL_TP=tensorflow_pytorch_opencv-${STABLE_TF2}_${STABLE_TORCH}_${STABLE_OPENCV4}
 
 TPO_BUILDALL=${TPO_BUILDALL_T} ${TPO_BUILDALL_P} ${TPO_BUILDALL_TP}
+
+# For CPU builds (if GPU mode is enabled), we will use NVIDIA_VISIBLE_DEVICES=void as detailed in
+# https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/docker-specialized.html
 
 ##### Jupyter Notebook ready based on TPO & CTPO
 TPO_JUP=jupyter-tensorflow_pytorch_opencv-${STABLE_TF2}_${STABLE_TORCH}_${STABLE_OPENCV4}
@@ -192,6 +197,7 @@ build_prep:
 	  --magma_version ${CTPO_MAGMA} --magma_arch "${CTPO_MAGMA_ARCH}" \
 	  --torch_arch="${DNN_ARCH_TORCH}" --torchaudio_version=${CTPO_TORCHAUDIO} --torchvision_version=${CTPO_TORCHVISION} \
 	    --torchdata_version=${CTPO_TORCHDATA} --torchtext_version=${CTPO_TORCHTEXT} \
+	  --clang_version=${CLANG_VERSION} \
 	&& sync
 	@while [ ! -f ${BUILD_DESTDIR}/env.txt ]; do sleep 1; done
 
@@ -218,8 +224,9 @@ actual_build:
 	@if [ "A${CTPO_BUILD}" == "A" ]; then echo "Missing value for CTPO_BUILD, aborting"; exit 1; fi
 	@$(eval CHECKED_DOCKER_RUNTIME=$(shell docker info | grep "Default Runtime" | cut -d : -f 2 | tr  -d " "))
 	@$(eval CHECK_DOCKER_RUNTIME=$(shell if [ "A${CHECKED_DOCKER_RUNTIME}" == "Anvidia" ]; then echo "GPU"; else echo "CPU"; fi))
-# Comment the next line to bypass CPU/GPU check 
-	@if [ "A${CTPO_BUILD}" != "A${CHECK_DOCKER_RUNTIME}" ]; then echo "ERROR: Unable to build, default runtime is ${CHECK_DOCKER_RUNTIME} and build requires ${CTPO_BUILD}. Either add or remove "'"default-runtime": "nvidia"'" in /etc/docker/daemon.json before running: sudo systemctl restart docker"; echo ""; echo ""; exit 1; fi
+# GPU docker + CPU build okay using NVIDIA_VISIBLE_DEVICES=void 
+	@$(eval DOCKER_PRE=$(shell if [ "A${CHECK_DOCKER_RUNTIME}" == "AGPU" ]; then if [ "A${CTPO_BUILD}" == "ACPU" ]; then echo "NVIDIA_VISIBLE_DEVICES=void"; else echo ""; fi; fi))
+	@if [ "A${CTPO_BUILD}" != "A${CHECK_DOCKER_RUNTIME}" ]; then if [ "A${DOCKER_PRE}" == "" ]; then echo "ERROR: Unable to build, default runtime is ${CHECK_DOCKER_RUNTIME} and build requires ${CTPO_BUILD}. Either add or remove "'"default-runtime": "nvidia"'" in /etc/docker/daemon.json before running: sudo systemctl restart docker"; echo ""; echo ""; exit 1; else echo "Note: GPU docker + CPU build => using ${DOCKER_PRE}"; fi; fi
 	@$(eval VAR_NT="${CTPO_FULLNAME}")
 	@$(eval VAR_DD="${BUILD_DESTDIR}")
 	@$(eval VAR_PY="${BUILD_DESTDIR}/System--Details.txt")
@@ -233,11 +240,11 @@ actual_build:
 	@echo "  CTPO_FROM               : ${CTPO_FROM}" | tee ${VAR_CV} | tee ${VAR_TF} | tee ${VAR_FF} | tee ${VAR_PT} | tee ${VAR_PY}
 	@echo ""
 	@echo -n "  Built with Docker"; docker info | grep "Default Runtime"
-	@echo "  Base Image: ${CHECK_DOCKER_RUNTIME} / Build requirements: ${CTPO_BUILD}"
+	@echo "  DOCKER_PRE: ${DOCKER_PRE}"
+	@echo "  Docker runtime: ${CHECK_DOCKER_RUNTIME} / Build requirements: ${CTPO_BUILD}"
 	@echo ""
 	@echo "-- Docker command to be run:"
-	@echo "docker buildx build --progress plain --platform linux/amd64 ${DOCKER_BUILD_ARGS} \\" > ${VAR_NT}.cmd
-#	@echo "DOCKER_BUILDKIT=0 docker build ${DOCKER_BUILD_ARGS} \\" > ${VAR_NT}.cmd
+	@echo "${DOCKER_PRE} docker buildx build --progress plain --platform linux/amd64 ${DOCKER_BUILD_ARGS} \\" > ${VAR_NT}.cmd
 	@echo "  --build-arg CTPO_NUMPROC=\"$(CTPO_NUMPROC)\" \\" >> ${VAR_NT}.cmd
 	@echo "  --tag=\"${CTPO_DESTIMAGE}\" \\" >> ${VAR_NT}.cmd
 	@echo "  -f ${BUILD_DESTDIR}/Dockerfile \\" >> ${VAR_NT}.cmd
@@ -249,7 +256,7 @@ actual_build:
 # Actual build
 	@chmod +x ./${VAR_NT}.cmd
 	@script -a -e -c ./${VAR_NT}.cmd ${VAR_NT}.log.temp; exit "$${PIPESTATUS[0]}"
-	@CTPO_DESTIMAGE="${CTPO_DESTIMAGE}" VAR_DD="${VAR_DD}" VAR_NT="${VAR_NT}" VAR_CV="${VAR_CV}" VAR_TF="${VAR_TF}" VAR_FF="${VAR_FF}" VAR_PT="${VAR_PT}" VAR_PY="${VAR_PY}" make post_build
+	@CTPO_DESTIMAGE="${CTPO_DESTIMAGE}" VAR_DD="${VAR_DD}" VAR_NT="${VAR_NT}" VAR_CV="${VAR_CV}" VAR_TF="${VAR_TF}" VAR_FF="${VAR_FF}" VAR_PT="${VAR_PT}" VAR_PY="${VAR_PY}" DOCKER_PRE="${DOCKER_PRE}" make post_build
 
 post_build:
 	@${eval tmp_id=$(shell docker create ${CTPO_DESTIMAGE})}
@@ -267,7 +274,7 @@ post_build:
 	@./tools/quick_bi.sh ${VAR_DD} && sync
 	@while [ ! -f ${VAR_DD}/BuildInfo.txt ]; do sleep 1; done
 
-	@CTPO_DESTIMAGE="${CTPO_DESTIMAGE}" VAR_DD="${VAR_DD}" VAR_NT="${VAR_NT}" VAR_CV="${VAR_CV}" VAR_TF="${VAR_TF}" VAR_FF="${VAR_FF}" VAR_PT="${VAR_PT}" VAR_PY="${VAR_PY}" make post_build_check
+	@CTPO_DESTIMAGE="${CTPO_DESTIMAGE}" VAR_DD="${VAR_DD}" VAR_NT="${VAR_NT}" VAR_CV="${VAR_CV}" VAR_TF="${VAR_TF}" VAR_FF="${VAR_FF}" VAR_PT="${VAR_PT}" VAR_PY="${VAR_PY}" DOCKER_PRE="${DOCKER_PRE}" make post_build_check
 
 	@mv ${VAR_NT}.log.temp ${VAR_NT}.log
 	@rm -f ./${VAR_NT}.cmd
@@ -278,9 +285,9 @@ post_build:
 post_build_check:
 	@$(eval TF_BUILT=$(shell grep -q "TensorFlow_Built" ${VAR_DD}/BuildInfo.txt && echo "yes" || echo "no"))
 	@$(eval PT_BUILT=$(shell grep -q "Torch_Built" ${VAR_DD}/BuildInfo.txt && echo "yes" || echo "no"))
-	@if [ "A${CKTK_CHECK}" == "Ayes" ]; then if [ "A${TF_BUILT}" == "Ayes" ]; then CTPO_DESTIMAGE="${CTPO_DESTIMAGE}" VAR_TF=${VAR_TF} VAR_NT="${VAR_NT}" make force_tf_check; fi; fi
-	@if [ "A${CKTK_CHECK}" == "Ayes" ]; then if [ "A${PT_BUILT}" == "Ayes" ]; then CTPO_DESTIMAGE="${CTPO_DESTIMAGE}" VAR_PT=${VAR_PT} VAR_NT="${VAR_NT}" make force_pt_check; fi; fi
-	@CTPO_DESTIMAGE="${CTPO_DESTIMAGE}" VAR_CV=${VAR_CV} VAR_NT="${VAR_NT}" make force_cv_check
+	@if [ "A${CKTK_CHECK}" == "Ayes" ]; then if [ "A${TF_BUILT}" == "Ayes" ]; then CTPO_DESTIMAGE="${CTPO_DESTIMAGE}" VAR_TF=${VAR_TF} VAR_NT="${VAR_NT}" DOCKER_PRE="${DOCKER_PRE}" make force_tf_check; fi; fi
+	@if [ "A${CKTK_CHECK}" == "Ayes" ]; then if [ "A${PT_BUILT}" == "Ayes" ]; then CTPO_DESTIMAGE="${CTPO_DESTIMAGE}" VAR_PT=${VAR_PT} VAR_NT="${VAR_NT}" DOCKER_PRE="${DOCKER_PRE}" make force_pt_check; fi; fi
+	@CTPO_DESTIMAGE="${CTPO_DESTIMAGE}" VAR_CV=${VAR_CV} VAR_NT="${VAR_NT}" DOCKER_PRE="${DOCKER_PRE}" make force_cv_check
 
 ##### Force Toolkit checks
 
@@ -288,25 +295,25 @@ post_build_check:
 # might be useful https://stackoverflow.com/questions/44232898/memoryerror-in-tensorflow-and-successful-numa-node-read-from-sysfs-had-negativ/44233285#44233285
 force_tf_check:
 	@echo "test: tf_det"
-	@docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/tf_det.py | tee -a ${VAR_TF} | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
+	@${DOCKER_PRE} docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/tf_det.py | tee -a ${VAR_TF} | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
 	@echo "test: tf_hw"
-	@docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/tf_hw.py | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
+	@${DOCKER_PRE} docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/tf_hw.py | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
 	@echo "test: tf_test"
-	@docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/tf_test.py | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
+	@${DOCKER_PRE} docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/tf_test.py | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
 
 ## PyTorch
 force_pt_check:
 	@echo "pt_det"
-	@docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/pt_det.py | tee -a ${VAR_PT} | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
+	@${DOCKER_PRE} docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/pt_det.py | tee -a ${VAR_PT} | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
 	@echo "pt_hw"
-	@docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/pt_hw.py | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
+	@${DOCKER_PRE} docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/pt_hw.py | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
 	@echo "pt_test"
-	@docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/pt_test.py  | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
+	@${DOCKER_PRE} docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/pt_test.py  | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
 
 ## OpenCV
 force_cv_check:
 	@echo "cv_hw"
-	@docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/cv_hw.py | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
+	@${DOCKER_PRE} docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/cv_hw.py | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
 
 ##########
 ##### Build Details
@@ -314,10 +321,10 @@ dump_builddetails:
 	@./tools/build_bi_list.py BuildDetails README-BuildDetails.md
 
 ##########
-##### Docker tag: tags the regular images with the TAG_RELEASE and CTPO_RELEASE details
-## Needed for the Jupiter Notebook build
+##### Docker tag: tags the regular images with the TAG_RELEASE details
+## Needed to be run before for the Jupiter Notebook build, unless you want to pull the image from docker hub
 docker_tag:
-	PTARG="${TPO_BUILDALL} ${CTPO_BUILDALL}" TAG_PRE="${TAG_RELEASE}" DO_UPLOAD="no" make docker_tag_push_core
+	PTARG="${TPO_BUILDALL} ${CTPO_BUILDALL}" TAG_PRE="${TAG_RELEASE}" CTPO_RELEASE="${CTPO_RELEASE}" DO_UPLOAD="no" make docker_tag_push_core
 
 ##########
 ##### Jupyter Notebook
@@ -336,6 +343,7 @@ jupyter_build_all: jupyter_tpo jupyter_ctpo
 ${TPO_JUP} ${CTPO_JUP}:
 	@BTARG="$@" TAG_PRE="${TAG_RELEASE}" CTPO_RELEASE="${CTPO_RELEASE}" make jupyter_build
 
+# Do not call directly, call jupter_build_all or jupyter_tpo or jupyter_ctpo
 jupyter_build:
 # BTARG: jupyter-tensorflow_opencv-2.12... / split: JX: jupyter, JB: tens...opencv, JT: 2.12...
 	@$(eval JX=$(shell echo ${BTARG} | cut -d- -f 1))
@@ -394,7 +402,7 @@ buildclean:
 
 ##### For Maintainers only (ie those with write access to the docker hub)
 docker_push:
-	PTARG="${TPO_BUILDALL} ${CTPO_BUILDALL}" TAG_PRE="${TAG_RELEASE}" DO_UPLOAD="yes" make docker_tag_push_core
+	PTARG="${TPO_BUILDALL} ${CTPO_BUILDALL}" TAG_PRE="${TAG_RELEASE}" CTPO_RELEASE="${CTPO_RELEASE}" DO_UPLOAD="yes" make docker_tag_push_core
 
 docker_push_jup:
 	@BTARG="${TPO_JUP}" TAG_PRE="${TAG_RELEASE}" CTPO_RELEASE="${CTPO_RELEASE}" DO_UPLOAD="yes" make jupyter_build
@@ -420,7 +428,7 @@ docker_tag_push_core:
 		for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""; \
 	else \
 		echo "++ Tagging only"; \
-	fi
+	fi; \
 	for t in $${array[@]}; do \
 		echo "Tagging image: $${t}"; \
 		tr="$${TAG_PRE}$${t}"; \
@@ -433,3 +441,34 @@ docker_tag_push_core:
 			docker push $${tl}; \
 		fi; \
 	done
+
+## Maintainers:
+# - Create a new branch on GitHub that match the expected release tag, pull and checkout that branch
+# - In the Makefile, update the CTPO_RELEASE variable to match the expected release tag,
+#   and make appropriate changes as needed to support the build (ie CUDA version, PyTorch version, ...)
+#   At the end, we will tag and make a release for that "release tag" on GitHub
+# - Build ALL the CTPO images
+#  % make build_ctpo
+# - Build ALL the TPO images
+#  % make build_tpo
+# - Manually check that all the *.testlog contain valid information
+#  % less *.testlog
+# - Build the README-BuildDetails.md file
+#  % make dump_builddetails
+# - Add TAG_RELEASE tag to all the built images
+#  % make docker_tag
+# -Built the Jupyter Lab images
+#  % make jupyter_build_all
+# - Test the latest Jupyter Lab image, using network port 8765. REPLACE the tag to match the current one.
+#   We are mounting pwd to /iti so if you run this from the directoy of this file, you will see the test directory, 
+#   so you can create a new Python Notebook and copy the code to test: cw_hw.py, tf_test.py, pt_test.py
+#   remember to delete any "extra" files created by this process
+#  % docker run --rm -it -v `pwd`:/iti -p 8765:8888 --gpus all jupyter-cuda_tensorflow_pytorch_opencv:REPLACE
+# - Build the Unraid images
+#  % make JN_MODE="-unraid" jupyter_build_all
+# - Upload the images to docker hub
+#  % make docker_push
+#  % make docker_push_jup
+#  % make JN_MODE="-unraid" docker_push_jup
+# - Update the README.md file with the new release tag + version history
+# - Commit and push the changes to GitHub (in the branch created at the beginning)

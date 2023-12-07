@@ -2,7 +2,7 @@ import tensorflow as tf
 
 print("")
 print("*** Tensorflow version   : ", tf.__version__)
-print("*** Tensorflow Keras     : ", tf.keras.__version__)
+#print("*** Tensorflow Keras     : ", tf.keras.__version__)
 
 print("*** TF Builf with cuda   : ", tf.test.is_built_with_cuda())
 print("*** TF compile flags     : ", tf.sysconfig.get_compile_flags())

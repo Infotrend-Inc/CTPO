@@ -10,8 +10,8 @@ ENV CTPO_OPENCV_CUDA=""
 ENV CTPO_OPENCV_NONFREE=""
 RUN mkdir -p /usr/local/src/opencv/build /usr/local/src/opencv_contrib \
   && cd /usr/local/src \
-  && wget -q --no-check-certificate https://github.com/opencv/opencv/archive/${CTPO_OPENCV_VERSION}.tar.gz -O - | tar --strip-components=1 -xz -C /usr/local/src/opencv \
-  && wget -q --no-check-certificate https://github.com/opencv/opencv_contrib/archive/${CTPO_OPENCV_VERSION}.tar.gz -O - | tar --strip-components=1 -xz -C /usr/local/src/opencv_contrib \
+  && wget -q https://github.com/opencv/opencv/archive/${CTPO_OPENCV_VERSION}.tar.gz -O - | tar --strip-components=1 -xz -C /usr/local/src/opencv \
+  && wget -q https://github.com/opencv/opencv_contrib/archive/${CTPO_OPENCV_VERSION}.tar.gz -O - | tar --strip-components=1 -xz -C /usr/local/src/opencv_contrib \
   && cd /usr/local/src/opencv/build \
   && time cmake \
     -DBUILD_DOCS=0 \

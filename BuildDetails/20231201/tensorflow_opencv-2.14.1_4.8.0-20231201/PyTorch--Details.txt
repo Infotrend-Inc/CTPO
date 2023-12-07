@@ -1,0 +1,26 @@
+  CTPO_FROM               : ubuntu:22.04
+NVIDIA_VISIBLE_DEVICES=void docker buildx build --progress plain --platform linux/amd64 --no-cache \
+  --build-arg CTPO_NUMPROC="32" \
+  --tag="tensorflow_opencv:2.14.1_4.8.0-20231201" \
+  -f BuildDetails/20231201/tensorflow_opencv-2.14.1_4.8.0-20231201/Dockerfile \
+  .
+
+
+***** PyTorch configuration:
+No PyTorch built
+
+
+***** TorchVision configuration:
+No TorchVision built
+
+
+***** TorchAudio configuration:
+No TorchAudio built
+
+
+***** TorchData configuration:
+No TorchData built
+
+
+***** TorchText configuration:
+No TorchText built
