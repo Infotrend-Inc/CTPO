@@ -14,6 +14,8 @@ Latest release: 20231201
 * 2. [Usage and more](#Usageandmore)
 	* 2.1. [A note on supported GPU in the Docker Hub builds](#AnoteonsupportedGPUintheDockerHubbuilds)
 	* 2.2. [Using the container images](#Usingthecontainerimages)
+	* 2.3. [Podman usage](#Podmanusage)
+	* 2.4. [docker compose](#dockercompose)
 * 3. [Version History](#VersionHistory)
 
 <!-- vscode-markdown-toc-config
@@ -262,7 +264,7 @@ From that WebUI, when you `File -> Shutdown`, the container will exit.
 The non-Jupyter containers are set to provide the end users with a `bash`.
 `pwd`-mounting the `/iti` directory to a directory where the developer has some code for testing enables the setup of a quick prototyping/testing container-based environment. 
 For example to run some of the content of the `test` directory on a CPU, in the directory where this `README.md` is located:
-```
+```bash
 % docker run --rm -it -v `pwd`:/iti infotrend/ctpo-tensorflow_opencv:2.12.0_4.7.0-20231120
       [this starts the container in interactive mode and we can type command in the provided shell]
 root@b859b8aced9c:/iti# python3 ./test/tf_test.py
@@ -280,6 +282,61 @@ Tensorflow test: Done
 
 Note that the base container runs as `root`.
 If you want to run it as a non-root user, add `-u $(id -u):$(id -g)` to the `docker` command line and ensure that you have access to the directories you will work in.
+
+###  2.3. <a name='Podmanusage'></a>Podman usage
+
+The built image is compatible with other GPU-compatible container runtimes, such as [`podman`](https://podman.io/).
+
+Follow the instructions to install the [NVIDIA Container Toolkit](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/install-guide.html) and [Support for Container Device Interface](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/latest/cdi-support.html). 
+
+You will need a version of `podman` above 4.1.0 to be able to:
+
+```bash
+% podman run -it --rm --device nvidia.com/gpu=all infotrend/ctpo-cuda_tensorflow_pytorch_opencv:latest
+
+root@2b8d77a97c5b:/iti# python3 /iti/test/pt_test.py 
+Tensorflow test: GPU found
+On cpu:
+[...]
+On cuda:
+[...]
+
+root@2b8d77a97c5b:/iti# touch file
+```
+, that last command will create a `file` owned by the person who started the container.
+
+> ℹ️ If you are on Ubuntu 22.04, install [HomeBrew](https://brew.sh/) and `brew install podman`, which at the time of this writeup provided version 4.8.2
+
+###  2.4. <a name='dockercompose'></a>docker compose
+
+It is also possible to run the container in `docker compose`.
+
+Follow the [GPU support](https://docs.docker.com/compose/gpu-support/) instructions to match your usage, and adapt the following `compose.yml` example as needed:
+
+```yaml
+version: "3.8"
+services:
+  jupyter_ctpo:
+    container_name: jupyter_ctpo
+    image: infotrend/ctpo-jupyter-tensorflow_pytorch_opencv:latest
+    restart: unless-stopped
+    ports:
+      - 8888:8888
+    volumes:
+      - ./iti:/iti
+      - ./home:/home/jupyter
+    environment:
+      - TZ="America/New_York"
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+```
 
 ##  3. <a name='VersionHistory'></a>Version History
 
