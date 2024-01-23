@@ -29,14 +29,10 @@ Latest release: 20231201
 The tool's purpose is to enable developers, ML and CV enthusiasts to build and test solutions `FROM` a docker container, allowing fast prototyping and release of code to the community.
 
 The CTPO (CUDA + TensorFlow + PyTorch + OpenCV) project aims to address the following challenges and provide solutions:
-
-**Containerized Development Environment**: CTPO offers Docker containers with pre-configured environments containing CUDA, TensorFlow, PyTorch, and OpenCV. This allows developers to work within a consistent and isolated environment.
-
-**Fast Prototyping and Testing**: The project facilitates fast prototyping and testing by providing pre-built containers. Developers can quickly iterate on their code within the containerized environment.
-
-**Versioned Frameworks and Dependencies**:The project uses versioned Docker containers, making it easier for developers to work with specific versions of TensorFlow, PyTorch, OpenCV, and other components.
-
-**Jupyter Lab Integration**: CTPO includes Jupyter Lab builds, allowing developers to use a web-based interface for interactive development, visualization, and documentation.
+- **Containerized Development Environment**: CTPO offers Docker containers with pre-configured environments containing CUDA, TensorFlow, PyTorch, and OpenCV. This allows developers to work within a consistent and isolated environment.
+- **Fast Prototyping and Testing**: The project facilitates fast prototyping and testing by providing pre-built containers. Developers can quickly iterate on their code within the containerized environment.
+- **Versioned Frameworks and Dependencies**: The project uses versioned Docker containers, making it easier for developers to work with specific versions of TensorFlow, PyTorch, OpenCV, and other components.
+- **Jupyter Lab Integration**: CTPO includes Jupyter Lab builds, allowing developers to use a web-based interface for interactive development, visualization, and documentation.
 
 Building each container independently is made possible by the `Dockerfile` available in the `BuildDetails/<release>/<container>-<tag>` directories.
 Building each container takes resources and time (counted in many cores, GB of memory and build hours).
