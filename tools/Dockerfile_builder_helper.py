@@ -129,6 +129,8 @@ def return_BOOTSTRAP_NVIDIA(cuda_version, cudnn_install, indir):
         tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda11.7")
     elif cuda_version == "11.8.0":
         tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda11.8")
+    elif cuda_version == "12.2.2":
+        tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda12.2")
 
     return tmp
 
@@ -146,7 +148,7 @@ def return_CTPO_CUDA_APT(cuda_version, cudnn_install, indir):
     if cuda_version is None:
         return slurp_file(f"{indir}/APT_CUDA.False")
 
-## Disabled until some of those packages are needed
+# Disabled until some of those packages are needed
     return slurp_file(f"{indir}/APT_CUDA.False")
 #    tmp = slurp_file(f"{indir}/APT_CUDA.True")
 #    # 22.04: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/
@@ -155,16 +157,32 @@ def return_CTPO_CUDA_APT(cuda_version, cudnn_install, indir):
 #        repl = "11-7"
 #    elif cuda_version == "11.8.0":
 #        repl = "11-8"
+#    elif cuda_version == "12.2.2":
+#        repl = "12-2"
+#    elif cuda_version == "12.3.0":
+#        repl = "12-3"
 #    else:
 #        error_exit(f"Error: cuda version {cuda_version} is not supported")
 #
-#    repl_v = f"cuda-libraries-{repl} cuda-libraries-dev-{repl} cuda-tools-{repl} cuda-toolkit-{repl} libcublas-{repl} libcublas-dev-{repl} libcufft-{repl} libcufft-dev-{repl} libnpp-{repl} libnpp-dev-{repl}"
+#    repl_v=f"cuda-command-line-tools-{repl} cuda-cudart-dev-{repl} cuda-nvcc-{repl} cuda-cupti-{repl} cuda-nvprune-{repl} cuda-libraries-{repl} cuda-nvrtc-{repl} libcufft-{repl} libcurand-{repl} libcusolver-{repl} libcusparse-{repl} libcublas-{repl}"
+##    repl_v = f"cuda-libraries-{repl} cuda-libraries-dev-{repl} cuda-tools-{repl} cuda-toolkit-{repl} libcublas-{repl} libcublas-dev-{repl} libcufft-{repl} libcufft-dev-{repl} libnpp-{repl} libnpp-dev-{repl}"
 ## Removed to avoid held packages issue
 ##    if cudnn_install is not None:
 ##        repl_v += f" libnccl2 libnccl-dev"
 #    tmp = replace_line(tmp, "ENV CTPO_CUDA_APT", f"ENV CTPO_CUDA_APT=\"{repl_v}\"")
 #
 #    return tmp
+
+##
+
+def return_INSTALL_CLANG(clang_version, indir):
+    if clang_version is None:
+        return slurp_file(f"{indir}/INSTALL_CLANG.False")
+    
+    tmp = slurp_file(f"{indir}/INSTALL_CLANG.True")
+    tmp = replace_line(tmp, "ENV CTPO_CLANG_VERSION", f"ENV CTPO_CLANG_VERSION={clang_version}")
+    return tmp
+
 
 ##
 
@@ -196,15 +214,28 @@ def return_BUILD_TensorFlow(tensorflow_version, cuda_version, dnn_used, indir, a
     if tensorflow_version is None:
         return slurp_file(f"{indir}/BUILD_TensorFlow.False")
 
-    tmp = slurp_file(f"{indir}/BUILD_TensorFlow.True")
+    infile = f"{indir}/BUILD_TensorFlow.True"
+    testfile = f"{indir}/BUILD_TensorFlow.{tensorflow_version}"
+    if os.path.isfile(testfile):
+        infile = testfile
+
+    tmp = slurp_file(infile)
     if cuda_version is not None:
         tmp = replace_line(tmp, "ENV CTPO_TF_CONFIG", f"ENV CTPO_TF_CONFIG=\"--config=cuda\"")
         tmp = replace_line(tmp, "ENV TF_NEED_CUDA=0", f"ENV TF_NEED_CUDA=1")
-        tmp = replace_line(tmp, "ENV TF_CUDA_CLANG=0", f"ENV TF_CUDA_CLANG=1")
         tmp = replace_line(tmp, "ENV TF_CUDA_COMPUTE_CAPABILITIES", f"ENV TF_CUDA_COMPUTE_CAPABILITIES={dnn_used}")
+        if args.clang_version is not None:
+            tmp = replace_line(tmp, "ENV TF_CUDA_CLANG=0", f"ENV TF_CUDA_CLANG=1")
+        else:
+            tmp = replace_line(tmp, "ENV TF_CUDA_CLANG=0", f"ENV TF_CUDA_CLANG=0")
 
     tmp = replace_line(tmp, "ENV LATEST_BAZELISK", f"ENV LATEST_BAZELISK={args.latest_bazelisk}")
     tmp = replace_line(tmp, "ENV CTPO_TENSORFLOW_VERSION", f"ENV CTPO_TENSORFLOW_VERSION={tensorflow_version}")
+
+    if args.clang_version is not None:
+        tmp = replace_line(tmp, "ENV TF_NEED_CLANG", f"ENV TF_NEED_CLANG=1")
+    else:
+        tmp = replace_line(tmp, "ENV TF_NEED_CLANG", f"ENV TF_NEED_CLANG=0")
 
     return tmp
 
@@ -298,9 +329,9 @@ def build_dockerfile(input, indir, release, tensorflow_version, pytorch_version,
     repl = f"ARG CTPO_NUMPROC={args.numproc}"
     dockertxt = replace_line(dockertxt, "#==CTPO_NUMPROC==#", repl)
 
-    #==CTPO_CLANG_VERSION==#
-    repl = f"ENV CTPO_CLANG_VERSION={args.clang_version}"
-    dockertxt = replace_line(dockertxt, "#==CTPO_CLANG_VERSION==#", repl)
+    #==CTPO_INSTALL_CLANG==#
+    repl = return_INSTALL_CLANG(args.clang_version, indir)
+    dockertxt = replace_line(dockertxt, "#==CTPO_INSTALL_CLANG==#", repl)
 
     #==APT_TORCH==#
     repl = return_APT_TORCH(pytorch_version, indir)
@@ -379,7 +410,7 @@ def main():
     parser.add_argument("--input", help="Input Dockerfile", default="ubuntu22.04/Dockerfile.base")
     parser.add_argument("--cuda_ver", help="CUDA version(s) list (GPU only, | separated)", default="")
     parser.add_argument("--dnn_arch", help="DNN architecture build(s) list (GPU only, | separated)", default="")
-    parser.add_argument("--tf_cudnn_ver", help="TensorFlow CUDNN version (GPU only)", default="")
+    parser.add_argument("--tf_cudnn_ver", help="TensorFlow CUDNN version (GPU only, if specified force pull of cuddn from the internet versus using a FROM with cudnn)", default="")
     parser.add_argument("--latest_bazelisk", help="Specify latest Bazelisk", default="")
     parser.add_argument("--numproc", help="Number of concurrent processes to use for build", default="4")
     parser.add_argument("--nonfree", help="Include non-free packages", choices=["free", "unredistributable"], default="free")
@@ -473,7 +504,7 @@ def main():
             error_exit(f"Error: latest_bazelisk required when TF build requested")
 
     if isBlank(args.clang_version):
-        error_exit(f"Error: clang_version required")
+        args.clang_version = None
 
     if isBlank(args.ffmpeg_version):
         error_exit(f"Error: ffmpeg_version required")
@@ -481,7 +512,9 @@ def main():
     cudnn_install = None
     if cuda_version is not None:
         if tensorflow_version is not None:
-            cudnn_install = args.tf_cudnn_ver
+            if args.tf_cudnn_ver:
+                if isNotBlank(args.tf_cudnn_ver):
+                    cudnn_install = args.tf_cudnn_ver
 
     (dockertxt, env) = build_dockerfile(args.input, args.indir, args.release, tensorflow_version, pytorch_version, cuda_version, dnn_used, cudnn_install, opencv_version, args.verbose, args)
 
