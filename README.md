@@ -324,7 +324,7 @@ version: "3.8"
 services:
   jupyter_ctpo:
     container_name: jupyter_ctpo
-    image: infotrend/ctpo-jupyter-tensorflow_pytorch_opencv:latest
+    image: infotrend/ctpo-jupyter-cuda_tensorflow_pytorch_opencv:latest
     restart: unless-stopped
     ports:
       - 8888:8888
