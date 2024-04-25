@@ -301,14 +301,15 @@ def return_BUILD_TORCH(cuda_version, pytorch_version, indir, args):
         return(slurp_file(f"{indir}/BUILD_TORCH.False"))
 
     tmp = None
-    if cuda_version is None:
-        tmp = slurp_file(f"{indir}/BUILD_TORCH.CPU")
-    else:
-        tmp_file = f"{indir}/BUILD_TORCH.GPU.{pytorch_version}"
-        if os.path.isfile(tmp_file):
-            tmp = slurp_file(tmp_file)
-        else:
-            tmp = slurp_file(f"{indir}/BUILD_TORCH.GPU")
+    mode = "CPU"
+    if cuda_version is not None:
+        mode = "GPU"
+
+    tmp = slurp_file(f"{indir}/BUILD_TORCH.{mode}")
+    tmp_file = f"{indir}/BUILD_TORCH.{mode}.{pytorch_version}"
+    if os.path.isfile(tmp_file):
+        tmp = slurp_file(tmp_file)
+    if mode == "GPU":
         tmp = replace_line(tmp, "ENV CTPO_TORCH_CUDA_ARCH", f"ENV CTPO_TORCH_CUDA_ARCH=\"{args.torch_arch}\"")
 
     tmp = replace_line(tmp, "ENV CTPO_TORCH=", f"ENV CTPO_TORCH={pytorch_version}")
