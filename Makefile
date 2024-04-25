@@ -4,7 +4,7 @@ SHELL := /bin/bash
 .NOTPARALLEL:
 
 # Release to match data of Dockerfile and follow YYYYMMDD pattern
-CTPO_RELEASE=20231201
+CTPO_RELEASE=20240421
 
 # The default is not to build OpenCV non-free or build FFmpeg with libnpp, as those would make the images unredistributable 
 # Replace "free" by "unredistributable" if you need to use those for a personal build
@@ -41,37 +41,33 @@ CKTK_CHECK="yes"
 #
 # Note: CUDA11 minimum version has to match the one used by PyTorch
 # From PyTorch: Deprecation of CUDA 11.6 and Python 3.7 Support
-STABLE_CUDA11=11.8.0
-# For CUDA11 it might be possible to upgrade some of the pre-installed libraries to their latest version, this will add significant space to the container
-# to do, uncomment the line below the empty string set
-CUDA11_APT_CHANGE=""
-#CUDA11_APT_CHANGE="--allow-change-held-packages"
+STABLE_CUDA=12.3.2
+STABLE_CUDNN=8.9.7.29
 
 # CUDNN needs 5.3 at minimum, extending list from https://en.wikipedia.org/wiki/CUDA#GPUs_supported 
 # Skipping Tegra, Jetson, ... (ie not desktop/server GPUs) from this list
 # Keeping from Pascal and above
-DNN_ARCH_CUDA11=6.0,6.1,7.0,7.5,8.0,8.6,8.9,9.0
+DNN_ARCH_CUDA=6.0,6.1,7.0,7.5,8.0,8.6,8.9,9.0
 # Torch note on PTX: https://pytorch.org/docs/stable/cpp_extension.html
 DNN_ARCH_TORCH=6.0 6.1 7.0 7.5 8.0 8.6 8.9 9.0+PTX
 
 # According to https://opencv.org/releases/
-STABLE_OPENCV4=4.8.0
+STABLE_OPENCV4=4.9.0
 
 # FFmpeg
 # Release list: https://ffmpeg.org/download.html
 # Note: GPU extensions are added directly in the Dockerfile
-CTPO_FFMPEG_VERSION=5.1.4
+CTPO_FFMPEG_VERSION=6.1.1
 # https://github.com/FFmpeg/nv-codec-headers/releases
-CTPO_FFMPEG_NVCODEC="11.1.5.2"
+CTPO_FFMPEG_NVCODEC="12.1.14.0"
 
-# TF2 CUDA11 minimum is 2.4.0
+# TF2 CUDA & CUDNN
 # According to https://github.com/tensorflow/tensorflow/tags
 # Known working CUDA & CUDNN base version https://www.tensorflow.org/install/source#gpu
 # Find OS specific libcudnn file from https://developer.download.nvidia.com/compute/redist/cudnn/
-STABLE_TF2=2.14.1
-STABLE_TF2_CUDNN=8.7.0.84
+STABLE_TF2=2.16.1
 
-CLANG_VERSION=16
+CLANG_VERSION=17
 
 ## Information for build
 # https://github.com/bazelbuild/bazelisk
@@ -80,7 +76,7 @@ LATEST_BAZELISK=1.19.0
 # Magma
 # Release page: https://icl.utk.edu/magma/
 # Note: GPU targets (ie ARCH) are needed
-CTPO_MAGMA=2.7.2
+CTPO_MAGMA=2.8.0
 # Get ARCHs from https://bitbucket.org/icl/magma/src/master/Makefile
 CTPO_MAGMA_ARCH=Pascal Volta Turing Ampere Hopper
 
@@ -90,14 +86,14 @@ CTPO_MAGMA_ARCH=Pascal Volta Turing Ampere Hopper
 # https://pytorch.org/get-started/locally/
 # https://pytorch.org/get-started/pytorch-2.0/#getting-started
 # https://github.com/pytorch/pytorch/releases/tag/v2.0.1
-STABLE_TORCH=2.1.1
+STABLE_TORCH=2.2.2
 # Use release branch https://github.com/pytorch/vision
-CTPO_TORCHVISION="0.16.1"
+CTPO_TORCHVISION="0.17.2"
 # check compatibility from https://pytorch.org/audio/main/installation.html#compatibility-matrix
 # then use released branch at https://github.com/pytorch/audio
-CTPO_TORCHAUDIO="2.1.1"
+CTPO_TORCHAUDIO="2.2.2"
 # check compatibility from https://github.com/pytorch/text
-CTPO_TORCHTEXT="0.16.1"
+CTPO_TORCHTEXT="0.17.2"
 # check compatibility from https://github.com/pytorch/data and the release tags
 CTPO_TORCHDATA="0.7.1"
 
@@ -111,11 +107,11 @@ TAG_RELEASE="infotrend/ctpo-"
 ##########
 
 ##### CUDA [ _ Tensorflow ]  [ _ PyTorch ] _ OpenCV (aka CTPO)
-CTPO_BUILDALL_T  =cuda_tensorflow_opencv-${STABLE_CUDA11}_${STABLE_TF2}_${STABLE_OPENCV4}
+CTPO_BUILDALL_T  =cuda_tensorflow_opencv-${STABLE_CUDA}_${STABLE_TF2}_${STABLE_OPENCV4}
 
-CTPO_BUILDALL_P  =cuda_pytorch_opencv-${STABLE_CUDA11}_${STABLE_TORCH}_${STABLE_OPENCV4}
+CTPO_BUILDALL_P  =cuda_pytorch_opencv-${STABLE_CUDA}_${STABLE_TORCH}_${STABLE_OPENCV4}
 
-CTPO_BUILDALL_TP =cuda_tensorflow_pytorch_opencv-${STABLE_CUDA11}_${STABLE_TF2}_${STABLE_TORCH}_${STABLE_OPENCV4}
+CTPO_BUILDALL_TP =cuda_tensorflow_pytorch_opencv-${STABLE_CUDA}_${STABLE_TF2}_${STABLE_TORCH}_${STABLE_OPENCV4}
 
 CTPO_BUILDALL=${CTPO_BUILDALL_T} ${CTPO_BUILDALL_P} ${CTPO_BUILDALL_TP}
 
@@ -133,7 +129,7 @@ TPO_BUILDALL=${TPO_BUILDALL_T} ${TPO_BUILDALL_P} ${TPO_BUILDALL_TP}
 
 ##### Jupyter Notebook ready based on TPO & CTPO
 TPO_JUP=jupyter-tensorflow_pytorch_opencv-${STABLE_TF2}_${STABLE_TORCH}_${STABLE_OPENCV4}
-CTPO_JUP=jupyter-cuda_tensorflow_pytorch_opencv-${STABLE_CUDA11}_${STABLE_TF2}_${STABLE_TORCH}_${STABLE_OPENCV4}
+CTPO_JUP=jupyter-cuda_tensorflow_pytorch_opencv-${STABLE_CUDA}_${STABLE_TF2}_${STABLE_TORCH}_${STABLE_OPENCV4}
 
 ## By default, provide the list of build targets
 all:
@@ -190,15 +186,16 @@ build_prep:
 	@if [ ! -d ${BUILD_DESTDIR} ]; then echo "ERROR: ${BUILD_DESTDIR} directory could not be created"; exit 1; fi
 
 	@${DFBH} --verbose ${OVERWRITE_DOCKERFILE} --numproc ${CTPO_NUMPROC} \
-	  --build ${CTPO_NAME} --tag ${CTPO_TAG} --release ${CTPO_RELEASE} --destdir ${BUILD_DESTDIR} --nonfree "${CTPO_ENABLE_NONFREE}" \
-	  --cuda_ver "${STABLE_CUDA11}" --dnn_arch "${DNN_ARCH_CUDA11}" \
-	  --tf_cudnn_ver "${STABLE_TF2_CUDNN}" --latest_bazelisk "${LATEST_BAZELISK}" \
-	  --ffmpeg_version "${CTPO_FFMPEG_VERSION}" --ffmpeg_nvcodec "${CTPO_FFMPEG_NVCODEC}" \
-	  --magma_version ${CTPO_MAGMA} --magma_arch "${CTPO_MAGMA_ARCH}" \
-	  --torch_arch="${DNN_ARCH_TORCH}" --torchaudio_version=${CTPO_TORCHAUDIO} --torchvision_version=${CTPO_TORCHVISION} \
-	    --torchdata_version=${CTPO_TORCHDATA} --torchtext_version=${CTPO_TORCHTEXT} \
-	  --clang_version=${CLANG_VERSION} \
+		--build ${CTPO_NAME} --tag ${CTPO_TAG} --release ${CTPO_RELEASE} --destdir ${BUILD_DESTDIR} --nonfree "${CTPO_ENABLE_NONFREE}" \
+		--cuda_ver "${STABLE_CUDA}" --dnn_arch "${DNN_ARCH_CUDA}" \
+		--cudnn_ver "${STABLE_CUDNN}" --latest_bazelisk "${LATEST_BAZELISK}" \
+		--ffmpeg_version "${CTPO_FFMPEG_VERSION}" --ffmpeg_nvcodec "${CTPO_FFMPEG_NVCODEC}" \
+		--magma_version ${CTPO_MAGMA} --magma_arch "${CTPO_MAGMA_ARCH}" \
+		--torch_arch="${DNN_ARCH_TORCH}" --torchaudio_version=${CTPO_TORCHAUDIO} --torchvision_version=${CTPO_TORCHVISION} \
+		--torchdata_version=${CTPO_TORCHDATA} --torchtext_version=${CTPO_TORCHTEXT} \
+		--clang_version=${CLANG_VERSION} \
 	&& sync
+
 	@while [ ! -f ${BUILD_DESTDIR}/env.txt ]; do sleep 1; done
 
 	@CTPO_NAME=${CTPO_NAME} CTPO_TAG=${CTPO_TAG} CTPO_FULLTAG=${CTPO_FULLTAG} BUILD_DESTDIR=${BUILD_DESTDIR} CTPO_FULLNAME=${CTPO_FULLNAME} make pre_build
@@ -244,7 +241,7 @@ actual_build:
 	@echo "  Docker runtime: ${CHECK_DOCKER_RUNTIME} / Build requirements: ${CTPO_BUILD}"
 	@echo ""
 	@echo "-- Docker command to be run:"
-	@echo "${DOCKER_PRE} docker buildx build --progress plain --platform linux/amd64 ${DOCKER_BUILD_ARGS} \\" > ${VAR_NT}.cmd
+	@echo "BUILDX_EXPERIMENTAL=1 ${DOCKER_PRE} docker buildx debug --on=error build --progress plain --platform linux/amd64 ${DOCKER_BUILD_ARGS} \\" > ${VAR_NT}.cmd
 	@echo "  --build-arg CTPO_NUMPROC=\"$(CTPO_NUMPROC)\" \\" >> ${VAR_NT}.cmd
 	@echo "  --tag=\"${CTPO_DESTIMAGE}\" \\" >> ${VAR_NT}.cmd
 	@echo "  -f ${BUILD_DESTDIR}/Dockerfile \\" >> ${VAR_NT}.cmd
@@ -388,7 +385,7 @@ check_image_exists_then_pull:
 
 ##### Various cleanup
 clean:
-	rm -f *.log.temp
+	rm -f *.log.temp *.patch.temp
 
 allclean:
 	@make clean
