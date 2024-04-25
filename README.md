@@ -340,7 +340,7 @@ services:
 
 # 3. Version History
 
-- 20240421: Release with support for CUDA 12.32, TensorFlow 2.16.1, PyTorch 2.2.2 and OpenCV 4.9.0
+- 20240421: Release with support for CUDA 12.3.2, TensorFlow 2.16.1, PyTorch 2.2.2 and OpenCV 4.9.0
 - 20231201: Release with support for CUDA 11.8.0, TensorFlow 2.14.1, PyToch 2.1.1 and OpenCV 4.8.0
 - 20231120: Initial Release, with support for CUDA 11.8.0, TensorFlow 2.12.0, PyTorch 2.0.1 and OpenCV 4.7.0.
 - November 2023: Preparation for public release.
