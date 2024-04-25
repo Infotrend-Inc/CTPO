@@ -5,6 +5,7 @@
 *.sollist
 *.log
 *.log.temp
+*.patch.temp
 *.testlog
 *.cmd
 
