@@ -1,4 +1,4 @@
-# Adapted from https://gitlab.com/nvidia/container-images/cuda/-/blob/master/dist/11.8.0/ubuntu2204/devel/cudnn8/Dockerfile
+# Adapted from https://gitlab.com/nvidia/container-images/cuda/-/blob/master/dist/12.2.2/ubuntu2204/devel/cudnn8/Dockerfile
 ENV NV_CUDNN_VERSION 
 ENV NV_CUDNN_PACKAGE_NAME 
 ENV NV_CUDA_ADD=
