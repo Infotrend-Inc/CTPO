@@ -1,0 +1,10 @@
+  CTPO_FROM               : ubuntu:22.04
+BUILDX_EXPERIMENTAL=1 NVIDIA_VISIBLE_DEVICES=void docker buildx debug --on=error build --progress plain --platform linux/amd64  \
+  --build-arg CTPO_NUMPROC="32" \
+  --tag="pytorch_opencv:2.2.2_4.9.0-20240421" \
+  -f BuildDetails/20240421/pytorch_opencv-2.2.2_4.9.0-20240421/Dockerfile \
+  .
+
+
+***** TensorFlow configuration:
+No TensorFlow built
