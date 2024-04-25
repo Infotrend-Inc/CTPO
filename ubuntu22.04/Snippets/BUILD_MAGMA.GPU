@@ -8,4 +8,4 @@ RUN mkdir -p /usr/local/src/builder/build; \
     cd /usr/local/src/builder/build; \
     time cmake -DGPU_TARGET="${CTPO_MAGMA_ARCH}" ..; \
     time make -j${CTPO_NUMPROC} install; \
-    rm -rf /usr/local/src/magma
+    rm -rf /usr/local/src/magma /usr/local/src/builder
