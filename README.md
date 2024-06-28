@@ -345,16 +345,17 @@ services:
 When using the Jupyter version of CTPO with other users, you may prefer to use a `virtualenv` for your packages to be installed in. 
 In the following, we will create a `myvenv` virtual environment in the `/iti` directory, that will show up in the list of available kernels.
 
-In a Terminal in the Jupyter Lab, run:
+In a Terminal (preferably running a `bash` shell) in the Jupyter Lab, run:
 
 ```
-python3 -m venv myvenv
+python3 -m venv --system-site-packages myvenv
 source myvenv/bin/activate
 pip3 install ipykernel
 python -m ipykernel install --user --name=myvenv --name=myvenv --display-name="Python (myvenv)"
 ```
 
 Make sure to select the proper kernel in your notebook.
+When using this kernel, it is still recommendeded to run any `pip` command from the terminal with the virtual environment activated to ensure the packages are installed in the expected location (i.e. not a global installation). As an alternative for `pip` commands to run with the proper installation directory, you will need to use `! . ./myvenv/bin/activate` before the command. For example: `!. ./myvenv/bin/activate; pip install -r requirements.txt` 
 
 ## 2.6. Disabling GPUs when nvidia is the default Docker runtime
 
