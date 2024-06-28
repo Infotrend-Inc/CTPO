@@ -19,6 +19,8 @@ The tool's purpose is to enable developers, ML and CV enthusiasts to build and t
   - [2.2. Using the container images](#22-using-the-container-images)
   - [2.3. Podman usage](#23-podman-usage)
   - [2.4. docker compose](#24-docker-compose)
+  - [2.5. virtualenv for shared Jupyter Lab usage](#25-virtualenv-for-shared-jupyter-lab-usage)
+  - [2.6. Disabling GPUs when nvidia is the default Docker runtime](#26-disabling-gpus-when-nvidia-is-the-default-docker-runtime)
 - [3. Version History](#3-version-history)
 
 
@@ -337,6 +339,26 @@ services:
               count: 1
               capabilities: [gpu]
 ```
+
+## 2.5. virtualenv for shared Jupyter Lab usage
+
+When using the Jupyter version of CTPO with other users, you may prefer to use a `virtualenv` for your packages to be installed in. 
+In the following, we will create a `myvenv` virtual environment in the `/iti` directory, that will show up in the list of available kernels.
+
+In a Terminal in the Jupyter Lab, run:
+
+```
+python3 -m venv myvenv
+source myvenv/bin/activate
+pip3 install ipykernel
+python -m ipykernel install --user --name=myvenv --name=myvenv --display-name="Python (myvenv)"
+```
+
+Make sure to select the proper kernel in your notebook.
+
+## 2.6. Disabling GPUs when nvidia is the default Docker runtime
+
+If you have set `"default-runtime": "nvidia"` in your `/etc/docker/daemon.json` and want to hide the GPUs from a running container, add `NVIDIA_VISIBLE_DEVICES=void` before your `docker run` command.
 
 # 3. Version History
 
