@@ -126,11 +126,12 @@ def return_BOOTSTRAP_NVIDIA(cuda_version, cudnn_install, indir):
         return slurp_file(f"{indir}/BOOTSTRAP_NVIDIA.False")
     
     tmp = slurp_file(f"{indir}/BOOTSTRAP_NVIDIA.GPU")
-    tmp = replace_line(tmp, "ENV NV_CUDNN_VERSION", f"ENV NV_CUDNN_VERSION {cudnn_install}")
+    tmp = replace_line(tmp, "ENV NV_CUDNN_VERSION", f"ENV NV_CUDNN_VERSION={cudnn_install}-1")
     if cudnn_install.startswith("8."):
-        tmp = replace_line(tmp, "ENV NV_CUDNN_PACKAGE_NAME", f"ENV NV_CUDNN_PACKAGE_NAME \"libcudnn8\"")
+        tmp = replace_line(tmp, "ENV NV_CUDNN_PACKAGE_NAME", f"ENV NV_CUDNN_PACKAGE_NAME=\"libcudnn8\"")
     elif cudnn_install.startswith("9."):
-        tmp = replace_line(tmp, "ENV NV_CUDNN_PACKAGE_NAME", f"ENV NV_CUDNN_PACKAGE_NAME \"libcudnn9\"")
+        tmp = replace_line(tmp, "ENV NV_CUDNN_PACKAGE_BASENAME", f"ENV NV_CUDNN_PACKAGE_BASENAME=\"libcudnn9\"")
+
     if cuda_version.startswith("11.7"):
         tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda11.7")
     elif cuda_version.startswith("11.8"):
@@ -142,7 +143,9 @@ def return_BOOTSTRAP_NVIDIA(cuda_version, cudnn_install, indir):
             tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda12.3")
         else: # latest is 8.9.7 for 12.2
             tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda12.2")
-    elif cuda_version.startswith("12.4"):
+    elif cuda_version.startswith("12.4.1"):
+        tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda-12")
+    elif cuda_version.startswith("13.0"):
         tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda12.4")
 
     return tmp
@@ -227,7 +230,9 @@ def return_BUILD_TensorFlow(tensorflow_version, cuda_version, dnn_used, indir, a
     if tensorflow_version is None:
         return slurp_file(f"{indir}/BUILD_TensorFlow.False")
 
-    infile = f"{indir}/BUILD_TensorFlow.True"
+    infile = f"{indir}/BUILD_TensorFlow.CPU"
+    if cuda_version is not None:
+        infile = f"{indir}/BUILD_TensorFlow.GPU"
     testfile = f"{indir}/BUILD_TensorFlow.{tensorflow_version}"
     if os.path.isfile(testfile):
         infile = testfile
@@ -235,8 +240,10 @@ def return_BUILD_TensorFlow(tensorflow_version, cuda_version, dnn_used, indir, a
     tmp = slurp_file(infile)
     if cuda_version is not None:
         tmp = replace_line(tmp, "ENV CTPO_TF_CONFIG", f"ENV CTPO_TF_CONFIG=\"--config=cuda\"")
-        tmp = replace_line(tmp, "ENV TF_NEED_CUDA=0", f"ENV TF_NEED_CUDA=1")
+        tmp = replace_line(tmp, "ENV TF_NEED_CUDA", f"ENV TF_NEED_CUDA=1")
         tmp = replace_line(tmp, "ENV TF_CUDA_COMPUTE_CAPABILITIES", f"ENV TF_CUDA_COMPUTE_CAPABILITIES={dnn_used}")
+        if args.clang_version is not None:
+            tmp = replace_line(tmp, "ENV TF_CUDA_CLANG", f"ENV TF_CUDA_CLANG=1")
 
     tmp = replace_line(tmp, "ENV LATEST_BAZELISK", f"ENV LATEST_BAZELISK={args.latest_bazelisk}")
     tmp = replace_line(tmp, "ENV CTPO_TENSORFLOW_VERSION", f"ENV CTPO_TENSORFLOW_VERSION={tensorflow_version}")
@@ -324,7 +331,7 @@ def return_BUILD_TORCH(cuda_version, pytorch_version, indir, args):
         tmp = replace_line(tmp, "COPY torchvision.patch", f"COPY {dfile}.temp /tmp/torchvision.patch")
     tmp = replace_line(tmp, "ENV CTPO_TORCHAUDIO=",  f"ENV CTPO_TORCHAUDIO={args.torchaudio_version}")
     tmp = replace_line(tmp, "ENV CTPO_TORCHDATA=", f"ENV CTPO_TORCHDATA={args.torchdata_version}")
-    tmp = replace_line(tmp, "ENV CTPO_TORCHTEXT=",  f"ENV CTPO_TORCHTEXT={args.torchtext_version}")
+#    tmp = replace_line(tmp, "ENV CTPO_TORCHTEXT=",  f"ENV CTPO_TORCHTEXT={args.torchtext_version}")
     
     return tmp
 
@@ -446,7 +453,7 @@ def main():
     parser.add_argument("--torchvision_version", help="TorchVision version", default="")
     parser.add_argument("--torchaudio_version",  help="TorchAudio version",  default="")
     parser.add_argument("--torchdata_version",  help="TorchData version",  default="")
-    parser.add_argument("--torchtext_version",  help="TorchText version",  default="")
+#    parser.add_argument("--torchtext_version",  help="TorchText version",  default="")
     parser.add_argument("--clang_version", help="Clang version", default="")
     args = parser.parse_args()
 
@@ -518,8 +525,8 @@ def main():
             error_exit(f"Error: torchaudio_version required when PyTorch build requested")
         if isBlank(args.torchdata_version):
             error_exit(f"Error: torchdata_version required when PyTorch build requested")
-        if isBlank(args.torchtext_version):
-            error_exit(f"Error: torchtext_version required when PyTorch build requested")
+#        if isBlank(args.torchtext_version):
+#            error_exit(f"Error: torchtext_version required when PyTorch build requested")
 
     if tensorflow_version is not None:
         if isBlank(args.latest_bazelisk):
