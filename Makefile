@@ -94,6 +94,7 @@ CTPO_TORCHVISION="0.20.0"
 CTPO_TORCHAUDIO="2.5.0"
 # check compatibility from https://github.com/pytorch/data and the release tags
 CTPO_TORCHDATA="0.9.0"
+# TorchText: "development is stopped"
 
 ## Docker builder helper script & BuildDetails directory
 DFBH=./tools/Dockerfile_builder_helper.py
