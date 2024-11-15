@@ -170,6 +170,7 @@ RUN pip3 install -U \
     moviepy \
     pandas \
   #==PIP_KERAS==#
+    mkl-static mkl-include \
   && rm -rf /root/.cache/pip
 
 #==BUILD_TensorFlow==#

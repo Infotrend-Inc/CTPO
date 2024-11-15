@@ -9,7 +9,7 @@ RUN mkdir -p /usr/local/src \
   && git clone --depth 1 --recurse-submodule --branch v${CTPO_TORCH} https://github.com/pytorch/pytorch.git  \
   && cd /usr/local/src/pytorch \
   && pip3 install -r requirements.txt \
-  && time env USE_CUDA=1 USE_CUDNN=1 CAFFE2_USE_CUDNN=1 TORCH_CUDA_ARCH_LIST="${CTPO_TORCH_CUDA_ARCH}" USE_MKLDNN=1 USE_FFMPEG=1 USE_OPENCV=1 python3 ./setup.py bdist_wheel | tee /tmp/torch_config.txt \
+  && time env PYTORCH_BUILD_VERSION=${CTPO_TORCH} PYTORCH_BUILD_NUMBER=0 USE_CUDA=1 USE_CUDNN=1 CAFFE2_USE_CUDNN=1 TORCH_CUDA_ARCH_LIST="${CTPO_TORCH_CUDA_ARCH}" USE_MKLDNN=1 USE_FFMPEG=1 USE_OPENCV=1 python3 ./setup.py bdist_wheel | tee /tmp/torch_config.txt \
   && time pip3 install /usr/local/src/pytorch/dist/*.whl \
   && cd /tmp \
   && perl -i.bak -pe 'exit if m%^-- Configuring done%' torch_config.txt \
@@ -26,7 +26,7 @@ RUN mkdir -p /usr/local/src \
   && cd /usr/local/src \
   && git clone --depth 1 --recurse-submodule --branch v${CTPO_TORCHVISION} https://github.com/pytorch/vision.git  \
   && cd /usr/local/src/vision \
-  && time env FORCE_CUDA=1 TORCH_CUDA_ARCH_LIST="${CTPO_TORCH_CUDA_ARCH}" TORCHVISION_USE_FFMPEG=1 python3 ./setup.py bdist_wheel | tee /tmp/torchvision_config.txt \
+  && time env BUILD_VERSION=${CTPO_TORCHVISION} FORCE_CUDA=1 TORCH_CUDA_ARCH_LIST="${CTPO_TORCH_CUDA_ARCH}" TORCHVISION_USE_FFMPEG=1 python3 ./setup.py bdist_wheel | tee /tmp/torchvision_config.txt \
   && time pip3 install /usr/local/src/vision/dist/*.whl \
   && cd /tmp \
   && perl -i.bak -pe 'exit if m%^running bdist_wheel%' torchvision_config.txt \
@@ -42,7 +42,7 @@ RUN mkdir -p /usr/local/src \
   && cd /usr/local/src \
   && git clone --depth 1 --recurse-submodule --branch v${CTPO_TORCHAUDIO} https://github.com/pytorch/audio.git \
   && cd /usr/local/src/audio \
-  && time env USE_CUDA=1 TORCH_CUDA_ARCH_LIST="${CTPO_TORCH_CUDA_ARCH}" USE_FFMPEG=1 python3 ./setup.py bdist_wheel | tee /tmp/torchaudio_config.txt \
+  && time env BUILD_VERSION=${CTPO_TORCHAUDIO} USE_CUDA=1 TORCH_CUDA_ARCH_LIST="${CTPO_TORCH_CUDA_ARCH}" USE_FFMPEG=1 python3 ./setup.py bdist_wheel | tee /tmp/torchaudio_config.txt \
   && time pip3 install /usr/local/src/audio/dist/*.whl \
   && cd /tmp \
   && perl -i.bak -pe 'exit if m%^-- Configuring done%' torchaudio_config.txt \
@@ -57,7 +57,7 @@ RUN mkdir -p /usr/local/src \
   && cd /usr/local/src \
   && git clone --depth 1 --recurse-submodule --branch v${CTPO_TORCHDATA} https://github.com/pytorch/data.git  \
   && cd /usr/local/src/data \
-  && pip3 install . | tee /tmp/torchdata_config.txt \
+  && BUILD_VERSION=${CTPO_TORCHDATA} pip3 install . | tee /tmp/torchdata_config.txt \
   && rm -rf /root/.cache/pip /usr/local/src/data
 
 RUN python3 -c 'import torchdata; print(f"{torchdata.__version__}")' > /tmp/.torchdata_built
