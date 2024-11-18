@@ -145,6 +145,8 @@ def return_BOOTSTRAP_NVIDIA(cuda_version, cudnn_install, indir):
             tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda12.2")
     elif cuda_version.startswith("12.4.1"):
         tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda-12")
+    elif cuda_version.startswith("12.5.1"):
+        tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda-12")
     elif cuda_version.startswith("13.0"):
         tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda12.4")
 
@@ -319,6 +321,7 @@ def return_BUILD_TORCH(cuda_version, pytorch_version, indir, args):
     if mode == "GPU":
         tmp = replace_line(tmp, "ENV CTPO_TORCH_CUDA_ARCH", f"ENV CTPO_TORCH_CUDA_ARCH=\"{args.torch_arch}\"")
 
+    # To obtain diff files from GH: wget https://github.com/pytorch/audio/pull/3811.diff
     tmp = replace_line(tmp, "ENV CTPO_TORCH=", f"ENV CTPO_TORCH={pytorch_version}")
     tmp = replace_line(tmp, "ENV CTPO_TORCHVISION=", f"ENV CTPO_TORCHVISION={args.torchvision_version}")
     patch = f"{indir}/PATCH_TORCHVISION.{args.torchvision_version}"
@@ -330,6 +333,14 @@ def return_BUILD_TORCH(cuda_version, pytorch_version, indir, args):
         shutil.copy(patch, f"{dfile}.temp")
         tmp = replace_line(tmp, "COPY torchvision.patch", f"COPY {dfile}.temp /tmp/torchvision.patch")
     tmp = replace_line(tmp, "ENV CTPO_TORCHAUDIO=",  f"ENV CTPO_TORCHAUDIO={args.torchaudio_version}")
+    patch = f"{indir}/PATCH_TORCHAUDIO.{args.torchaudio_version}"
+    if os.path.isfile(patch):
+        dfile = f"{args.destdir}/torchaudio.patch"
+        shutil.copy(patch, f"{args.destdir}/torchaudio.patch")
+        # replace / with ___
+        dfile = dfile.replace("/", "___")
+        shutil.copy(patch, f"{dfile}.temp")
+        tmp = replace_line(tmp, "COPY torchaudio.patch", f"COPY {dfile}.temp /tmp/torchaudio.patch")
     tmp = replace_line(tmp, "ENV CTPO_TORCHDATA=", f"ENV CTPO_TORCHDATA={args.torchdata_version}")
 #    tmp = replace_line(tmp, "ENV CTPO_TORCHTEXT=",  f"ENV CTPO_TORCHTEXT={args.torchtext_version}")
     

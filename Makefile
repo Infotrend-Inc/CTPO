@@ -42,7 +42,9 @@ CKTK_CHECK="yes"
 # Note: CUDA11 minimum version has to match the one used by PyTorch
 # From PyTorch: Deprecation of CUDA 11.6 and Python 3.7 Support
 # (from within running container) to get the list of cudnn version available: apt-cache madison cudnn9-cuda-12-4
-STABLE_CUDA=12.4.1
+#
+# TF will likely not work unless we follow the recongized versions https://www.tensorflow.org/install/source#gpu
+STABLE_CUDA=12.5.1
 STABLE_CUDNN=9.3.0.75
 
 # CUDNN needs 5.3 at minimum, extending list from https://en.wikipedia.org/wiki/CUDA#GPUs_supported 
