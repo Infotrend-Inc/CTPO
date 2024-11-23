@@ -4,7 +4,7 @@ SHELL := /bin/bash
 .NOTPARALLEL:
 
 # Release to match data of Dockerfile and follow YYYYMMDD pattern
-CTPO_RELEASE=202411wip
+CTPO_RELEASE=20241119
 
 # The default is not to build OpenCV non-free or build FFmpeg with libnpp, as those would make the images unredistributable 
 # Replace "free" by "unredistributable" if you need to use those for a personal build
@@ -356,6 +356,7 @@ jupyter_build:
 	@$(eval JUP_DEST_IMAGE="${JX}-${JB}${JN_MODE}:${JT}-${CTPO_RELEASE}")
 	@echo "JUP_FROM_IMAGE: ${JUP_FROM_IMAGE}"
 	@echo "JUP_DEST_IMAGE: ${JUP_DEST_IMAGE}"
+	@echo "JN_MODE: ${JN_MODE} / JN_UID: ${JN_UID} / JN_GID: ${JN_GID}"
 	@TEST_IMAGE="${JUP_FROM_IMAGE}" make check_image_exists_then_pull
 	@cd Jupyter_build; docker build --build-arg JUPBC="${JUP_FROM_IMAGE}" --build-arg JUID=${JN_UID} --build-arg JGID=${JN_GID} -f Dockerfile${JN_MODE} --tag="${JUP_DEST_IMAGE}" .
 	@if [ "A${DO_UPLOAD}" == "Ayes" ]; then \

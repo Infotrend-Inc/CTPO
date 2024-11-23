@@ -1,6 +1,9 @@
 ARG JUPBC
 FROM ${JUPBC}
 
+RUN pip3 install ipywidgets \
+    && jupyter labextension enable widgetsnbextension
+
 # bypassing ARG for JUID/JGID for Unraid, to use its default user
 USER root
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y --no-install-recommends sudo
@@ -16,5 +19,6 @@ WORKDIR /iti
 
 EXPOSE 8888
 
-# Adding a default token 
-CMD jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --IdentityProvider.token='iti'
+# Using a default token 
+SHELL ["/usr/bin/bash", "-c"]
+CMD ["/usr/local/bin/python", "/usr/local/bin/jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--IdentityProvider.token='iti'"]
