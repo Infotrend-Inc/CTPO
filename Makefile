@@ -4,7 +4,7 @@ SHELL := /bin/bash
 .NOTPARALLEL:
 
 # Release to match data of Dockerfile and follow YYYYMMDD pattern
-CTPO_RELEASE=20240421
+CTPO_RELEASE=20241125
 
 # The default is not to build OpenCV non-free or build FFmpeg with libnpp, as those would make the images unredistributable 
 # Replace "free" by "unredistributable" if you need to use those for a personal build
@@ -41,8 +41,11 @@ CKTK_CHECK="yes"
 #
 # Note: CUDA11 minimum version has to match the one used by PyTorch
 # From PyTorch: Deprecation of CUDA 11.6 and Python 3.7 Support
-STABLE_CUDA=12.3.2
-STABLE_CUDNN=8.9.7.29
+# (from within running container) to get the list of cudnn version available: apt-cache madison cudnn9-cuda-12-4
+#
+# TF will likely not work unless we follow the recongized versions https://www.tensorflow.org/install/source#gpu
+STABLE_CUDA=12.5.1
+STABLE_CUDNN=9.3.0.75
 
 # CUDNN needs 5.3 at minimum, extending list from https://en.wikipedia.org/wiki/CUDA#GPUs_supported 
 # Skipping Tegra, Jetson, ... (ie not desktop/server GPUs) from this list
@@ -52,26 +55,26 @@ DNN_ARCH_CUDA=6.0,6.1,7.0,7.5,8.0,8.6,8.9,9.0
 DNN_ARCH_TORCH=6.0 6.1 7.0 7.5 8.0 8.6 8.9 9.0+PTX
 
 # According to https://opencv.org/releases/
-STABLE_OPENCV4=4.9.0
+STABLE_OPENCV4=4.10.0
 
 # FFmpeg
 # Release list: https://ffmpeg.org/download.html
 # Note: GPU extensions are added directly in the Dockerfile
-CTPO_FFMPEG_VERSION=6.1.1
+CTPO_FFMPEG_VERSION=7.1
 # https://github.com/FFmpeg/nv-codec-headers/releases
-CTPO_FFMPEG_NVCODEC="12.1.14.0"
+CTPO_FFMPEG_NVCODEC="12.2.72.0"
 
 # TF2 CUDA & CUDNN
 # According to https://github.com/tensorflow/tensorflow/tags
 # Known working CUDA & CUDNN base version https://www.tensorflow.org/install/source#gpu
 # Find OS specific libcudnn file from https://developer.download.nvidia.com/compute/redist/cudnn/
-STABLE_TF2=2.16.1
+STABLE_TF2=2.18.0
 
 CLANG_VERSION=17
 
 ## Information for build
 # https://github.com/bazelbuild/bazelisk
-LATEST_BAZELISK=1.19.0
+LATEST_BAZELISK=1.22.1
 
 # Magma
 # Release page: https://icl.utk.edu/magma/
@@ -86,16 +89,14 @@ CTPO_MAGMA_ARCH=Pascal Volta Turing Ampere Hopper
 # https://pytorch.org/get-started/locally/
 # https://pytorch.org/get-started/pytorch-2.0/#getting-started
 # https://github.com/pytorch/pytorch/releases/tag/v2.0.1
-STABLE_TORCH=2.2.2
+STABLE_TORCH=2.5.1
 # Use release branch https://github.com/pytorch/vision
-CTPO_TORCHVISION="0.17.2"
-# check compatibility from https://pytorch.org/audio/main/installation.html#compatibility-matrix
+CTPO_TORCHVISION="0.20.0"
 # then use released branch at https://github.com/pytorch/audio
-CTPO_TORCHAUDIO="2.2.2"
-# check compatibility from https://github.com/pytorch/text
-CTPO_TORCHTEXT="0.17.2"
+CTPO_TORCHAUDIO="2.5.0"
 # check compatibility from https://github.com/pytorch/data and the release tags
-CTPO_TORCHDATA="0.7.1"
+CTPO_TORCHDATA="0.9.0"
+# TorchText: "development is stopped"
 
 ## Docker builder helper script & BuildDetails directory
 DFBH=./tools/Dockerfile_builder_helper.py
@@ -191,8 +192,9 @@ build_prep:
 		--cudnn_ver "${STABLE_CUDNN}" --latest_bazelisk "${LATEST_BAZELISK}" \
 		--ffmpeg_version "${CTPO_FFMPEG_VERSION}" --ffmpeg_nvcodec "${CTPO_FFMPEG_NVCODEC}" \
 		--magma_version ${CTPO_MAGMA} --magma_arch "${CTPO_MAGMA_ARCH}" \
-		--torch_arch="${DNN_ARCH_TORCH}" --torchaudio_version=${CTPO_TORCHAUDIO} --torchvision_version=${CTPO_TORCHVISION} \
-		--torchdata_version=${CTPO_TORCHDATA} --torchtext_version=${CTPO_TORCHTEXT} \
+		--torch_arch="${DNN_ARCH_TORCH}" --torchaudio_version=${CTPO_TORCHAUDIO} \
+		--torchvision_version=${CTPO_TORCHVISION} \
+		--torchdata_version=${CTPO_TORCHDATA} \
 		--clang_version=${CLANG_VERSION} \
 	&& sync
 
@@ -264,7 +266,7 @@ post_build:
 	@printf "\n\n***** TorchVision configuration:\n" >> ${VAR_PT}; docker cp ${tmp_id}:/tmp/torchvision_config.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PT}
 	@printf "\n\n***** TorchAudio configuration:\n" >> ${VAR_PT}; docker cp ${tmp_id}:/tmp/torchaudio_config.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PT}
 	@printf "\n\n***** TorchData configuration:\n" >> ${VAR_PT}; docker cp ${tmp_id}:/tmp/torchdata_config.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PT}
-	@printf "\n\n***** TorchText configuration:\n" >> ${VAR_PT}; docker cp ${tmp_id}:/tmp/torchtext_config.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PT}
+#	@printf "\n\n***** TorchText configuration:\n" >> ${VAR_PT}; docker cp ${tmp_id}:/tmp/torchtext_config.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PT}
 	@printf "\n\n***** Python configuration:\n" >> ${VAR_PY}; docker cp ${tmp_id}:/tmp/python_info.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PY}
 	@docker rm -v ${tmp_id}
 
@@ -354,6 +356,7 @@ jupyter_build:
 	@$(eval JUP_DEST_IMAGE="${JX}-${JB}${JN_MODE}:${JT}-${CTPO_RELEASE}")
 	@echo "JUP_FROM_IMAGE: ${JUP_FROM_IMAGE}"
 	@echo "JUP_DEST_IMAGE: ${JUP_DEST_IMAGE}"
+	@echo "JN_MODE: ${JN_MODE} / JN_UID: ${JN_UID} / JN_GID: ${JN_GID}"
 	@TEST_IMAGE="${JUP_FROM_IMAGE}" make check_image_exists_then_pull
 	@cd Jupyter_build; docker build --build-arg JUPBC="${JUP_FROM_IMAGE}" --build-arg JUID=${JN_UID} --build-arg JGID=${JN_GID} -f Dockerfile${JN_MODE} --tag="${JUP_DEST_IMAGE}" .
 	@if [ "A${DO_UPLOAD}" == "Ayes" ]; then \

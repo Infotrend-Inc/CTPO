@@ -1,0 +1,12 @@
+diff --git a/src/libtorchaudio/cuctc/src/ctc_prefix_decoder_kernel_v2.cu b/src/libtorchaudio/cuctc/src/ctc_prefix_decoder_kernel_v2.cu
+index 4ca8f1bf24..e6192155a2 100644
+--- a/src/libtorchaudio/cuctc/src/ctc_prefix_decoder_kernel_v2.cu
++++ b/src/libtorchaudio/cuctc/src/ctc_prefix_decoder_kernel_v2.cu
+@@ -24,6 +24,7 @@
+ // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+ // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ #include <algorithm>
++#include <float.h>
+ #include "ctc_fast_divmod.cuh"
+ #include "cub/cub.cuh"
+ #include "device_data_wrap.h"

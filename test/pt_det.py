@@ -12,5 +12,5 @@ print("   *** PyTorch Vision    : ", torchvision.__version__)
 import torchdata
 print("   *** PyTorch Data      : ", torchdata.__version__)
 
-import torchtext
-print("   *** PyTorch Text      : ", torchtext.__version__)
+#import torchtext
+#print("   *** PyTorch Text      : ", torchtext.__version__)

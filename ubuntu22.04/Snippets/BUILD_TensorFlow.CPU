@@ -27,6 +27,7 @@ ENV TF_NEED_ROCM=0
 ENV TF_NEED_S3=0
 ENV TF_NEED_VERBS=0
 ENV TF_SET_ANDROID_WORKSPACE=0
+ENV HERMETIC_CUDA_COMPUTE_CAPABILITIES=
 
 RUN curl -s -Lo /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/releases/download/v${LATEST_BAZELISK}/bazelisk-linux-amd64 \
   && chmod +x /usr/local/bin/bazel \
@@ -36,9 +37,8 @@ RUN curl -s -Lo /usr/local/bin/bazel https://github.com/bazelbuild/bazelisk/rele
   && cd /usr/local/src/tensorflow \
   && bazel version \
   && ./configure \
-  && time bazel build --verbose_failures --config=opt --config=v2 ${CTPO_TF_CONFIG} //tensorflow/tools/pip_package:build_pip_package \
-  && time ./bazel-bin/tensorflow/tools/pip_package/build_pip_package /tmp/tensorflow_pkg \
-  && time pip3 install /tmp/tensorflow_pkg/tensorflow-*.whl \
+  && time bazel build --verbose_failures --config=opt --config=v2 ${CTPO_TF_CONFIG} //tensorflow/tools/pip_package:wheel --repo_env=WHEEL_NAME=tensorflow \
+  && time pip3 install bazel-bin/tensorflow/tools/pip_package/wheel_house/tensorflow-*.whl \
   && rm -rf /usr/local/src/tensorflow /tmp/tensorflow_pkg /tmp/bazel_check.pl /tmp/tf_build.sh /tmp/hsperfdata_root /root/.cache/bazel /root/.cache/pip /root/.cache/bazelisk
 
 RUN python3 -c 'import tensorflow as tf; print(f"{tf.__version__}")' > /tmp/.tensorflow_built

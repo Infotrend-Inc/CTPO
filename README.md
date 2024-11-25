@@ -1,6 +1,6 @@
 <h1>CTPO: CUDA + TensorFlow + PyTorch + OpenCV Docker containers</h1>
 
-Latest release: 20240421
+Latest release: 20240425
 
 `Dockerfile`s to build containers with support for CPU and GPU (NVIDIA CUDA) containers with support for TensorFlow, PyTorch and OpenCV (or combinations of), based on `nvidia/cuda` and Ubuntu 22.04 container images.
 
@@ -363,6 +363,7 @@ If you have set `"default-runtime": "nvidia"` in your `/etc/docker/daemon.json` 
 
 # 3. Version History
 
+- 20241125: Release with support for CUDA 12.5.1, TensorFlow 2.18.0, PyTorch 2.5.1 and OpenCV 4.10.0
 - 20240421: Release with support for CUDA 12.3.2, TensorFlow 2.16.1, PyTorch 2.2.2 and OpenCV 4.9.0
 - 20231201: Release with support for CUDA 11.8.0, TensorFlow 2.14.1, PyToch 2.1.1 and OpenCV 4.8.0
 - 20231120: Initial Release, with support for CUDA 11.8.0, TensorFlow 2.12.0, PyTorch 2.0.1 and OpenCV 4.7.0.

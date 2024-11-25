@@ -33,7 +33,7 @@ RUN apt-get update -y --fix-missing\
 
 # UTF-8
 RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-ENV LANG en_US.utf8
+ENV LANG=en_US.utf8
 
 # Install system packages
 RUN apt-get install -y \
@@ -166,14 +166,11 @@ RUN pip3 install -U \
   # Extra
     scikit-image \
     scikit-learn \
-    autovizwidget \
-    ipython \
-    jupyter \
     matplotlib \
     moviepy \
-    notebook \
     pandas \
   #==PIP_KERAS==#
+    mkl-static mkl-include \
   && rm -rf /root/.cache/pip
 
 #==BUILD_TensorFlow==#
@@ -188,7 +185,7 @@ RUN pip3 install -U \
 
 ##### Final steps
 
-# Add lab & dataframe display widget
+# Add Jupyter lab & venv requirements
 RUN apt-get install -y python3-venv \
   && pip3 install -U \
       jupyterlab
@@ -208,4 +205,4 @@ WORKDIR /iti
 #ENV NVIDIA_VISIBLE_DEVICES all
 #ENV NVIDIA_DRIVER_CAPABILITIES video,compute,utility
 
-CMD /bin/bash
+CMD ["/bin/bash"]
