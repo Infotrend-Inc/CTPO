@@ -1,0 +1,40 @@
+  CTPO_FROM               : ubuntu:22.04
+BUILDX_EXPERIMENTAL=1 NVIDIA_VISIBLE_DEVICES=void docker buildx debug --on=error build --progress plain --platform linux/amd64  \
+  --build-arg CTPO_NUMPROC="32" \
+  --tag="tensorflow_pytorch_opencv:2.18.0_2.5.1_4.10.0-20241125" \
+  -f BuildDetails/20241125/tensorflow_pytorch_opencv-2.18.0_2.5.1_4.10.0-20241125/Dockerfile \
+  .
+
+
+***** TensorFlow configuration:
+--- Tensorflow Build: Environment variables set --- 
+TF_CUDA_CLANG=0
+TF_CUDA_COMPUTE_CAPABILITIES=
+TF_NEED_AWS=0
+TF_NEED_CLANG=1
+TF_NEED_COMPUTECPP=0
+TF_NEED_CUDA=0
+TF_NEED_GCP=0
+TF_NEED_GDR=0
+TF_NEED_HDFS=0
+TF_NEED_JEMALLOC=0
+TF_NEED_KAFKA=0
+TF_NEED_MKL=0
+TF_NEED_MPI=0
+TF_NEED_OPENCL=0
+TF_NEED_OPENCL_SYCL=0
+TF_NEED_ROCM=0
+TF_NEED_S3=0
+TF_NEED_TENSORRT=0
+TF_NEED_VERBS=0
+TF_SET_ANDROID_WORKSPACE=0
+
+*** Tensorflow version   :  2.18.0
+*** TF Builf with cuda   :  False
+*** TF compile flags     :  ['-I/usr/local/lib/python3.10/dist-packages/tensorflow/include', '-D_GLIBCXX_USE_CXX11_ABI=1', '--std=c++17', '-DEIGEN_MAX_ALIGN_BYTES=64']
+*** TF include           :  /usr/local/lib/python3.10/dist-packages/tensorflow/include
+*** TF lib               :  /usr/local/lib/python3.10/dist-packages/tensorflow
+*** TF link flags        :  ['-L/usr/local/lib/python3.10/dist-packages/tensorflow', '-l:libtensorflow_framework.so.2']
+*** Keras version        :  3.6.0
+*** pandas version       :  2.2.3
+*** scikit-learn version :  1.5.2
