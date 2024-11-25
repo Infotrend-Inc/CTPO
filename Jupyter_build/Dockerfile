@@ -1,4 +1,4 @@
-ARG JUPBC=infotrend/define
+ARG JUPBC=ctpo-define
 FROM ${JUPBC}
 
 RUN pip3 install ipywidgets \

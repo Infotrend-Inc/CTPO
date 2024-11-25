@@ -4,7 +4,7 @@ SHELL := /bin/bash
 .NOTPARALLEL:
 
 # Release to match data of Dockerfile and follow YYYYMMDD pattern
-CTPO_RELEASE=20241119
+CTPO_RELEASE=20241125
 
 # The default is not to build OpenCV non-free or build FFmpeg with libnpp, as those would make the images unredistributable 
 # Replace "free" by "unredistributable" if you need to use those for a personal build
