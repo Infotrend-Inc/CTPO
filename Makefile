@@ -4,7 +4,7 @@ SHELL := /bin/bash
 .NOTPARALLEL:
 
 # Release to match data of Dockerfile and follow YYYYMMDD pattern
-CTPO_RELEASE=20241125
+CTPO_RELEASE=202412wip
 
 # The default is not to build OpenCV non-free or build FFmpeg with libnpp, as those would make the images unredistributable 
 # Replace "free" by "unredistributable" if you need to use those for a personal build
@@ -37,7 +37,7 @@ CKTK_CHECK="yes"
 # https://docs.nvidia.com/deploy/cuda-compatibility/index.html#binary-compatibility__table-toolkit-driver
 #
 # According to https://hub.docker.com/r/nvidia/cuda/
-# https://hub.docker.com/r/nvidia/cuda/tags?page=1&name=22.04
+# https://hub.docker.com/r/nvidia/cuda/tags?page=1&name=24.04
 #
 # Note: CUDA11 minimum version has to match the one used by PyTorch
 # From PyTorch: Deprecation of CUDA 11.6 and Python 3.7 Support
@@ -266,7 +266,6 @@ post_build:
 	@printf "\n\n***** TorchVision configuration:\n" >> ${VAR_PT}; docker cp ${tmp_id}:/tmp/torchvision_config.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PT}
 	@printf "\n\n***** TorchAudio configuration:\n" >> ${VAR_PT}; docker cp ${tmp_id}:/tmp/torchaudio_config.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PT}
 	@printf "\n\n***** TorchData configuration:\n" >> ${VAR_PT}; docker cp ${tmp_id}:/tmp/torchdata_config.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PT}
-#	@printf "\n\n***** TorchText configuration:\n" >> ${VAR_PT}; docker cp ${tmp_id}:/tmp/torchtext_config.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PT}
 	@printf "\n\n***** Python configuration:\n" >> ${VAR_PY}; docker cp ${tmp_id}:/tmp/python_info.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PY}
 	@docker rm -v ${tmp_id}
 

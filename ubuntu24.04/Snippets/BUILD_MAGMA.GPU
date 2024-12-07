@@ -1,0 +1,11 @@
+##### Magma (for PyTorch GPU only)
+
+ENV CTPO_MAGMA=2.6.2
+ENV CTPO_MAGMA_ARCH=
+RUN mkdir -p /usr/local/src/builder/build; \
+    cd /usr/local/src; \
+    wget -q http://icl.utk.edu/projectsfiles/magma/downloads/magma-${CTPO_MAGMA}.tar.gz -O - | tar --strip-components=1 -xz -C /usr/local/src/builder; \
+    cd /usr/local/src/builder/build; \
+    time cmake -DGPU_TARGET="${CTPO_MAGMA_ARCH}" ..; \
+    time make -j${CTPO_NUMPROC} install; \
+    rm -rf /usr/local/src/magma /usr/local/src/builder

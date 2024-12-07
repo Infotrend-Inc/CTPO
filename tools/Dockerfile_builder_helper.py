@@ -110,14 +110,14 @@ def replace_line(text, search, replace):
 
 def return_FROM(cuda_version, cudnn_install):
     if cuda_version is None:
-        return "ubuntu:22.04"
+        return "ubuntu:24.04"
     
     if cudnn_install is None:
         if cuda_version.startswith("12.3."):
-            return f"nvidia/cuda:{cuda_version}-cudnn9-devel-ubuntu22.04"
-        return f"nvidia/cuda:{cuda_version}-cudnn8-devel-ubuntu22.04"
+            return f"nvidia/cuda:{cuda_version}-cudnn9-devel-ubuntu24.04"
+        return f"nvidia/cuda:{cuda_version}-cudnn8-devel-ubuntu24.04"
 
-    return f"nvidia/cuda:{cuda_version}-devel-ubuntu22.04"
+    return f"nvidia/cuda:{cuda_version}-devel-ubuntu24.04"
 
 ##
 
@@ -169,7 +169,7 @@ def return_CTPO_CUDA_APT(cuda_version, cudnn_install, indir):
 # Disabled until some of those packages are needed
     return slurp_file(f"{indir}/APT_CUDA.False")
 #    tmp = slurp_file(f"{indir}/APT_CUDA.True")
-#    # 22.04: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/
+#    # 24.04: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/
 #    repl = None
 #    if cuda_version == "11.7.1":
 #        repl = "11-7"
@@ -446,8 +446,8 @@ def main():
     parser.add_argument("--tag", help="Container image tag", required=True)
     parser.add_argument("--release", help="Release version", required=True)
     parser.add_argument("--destdir", help="Destination directory", required=True)
-    parser.add_argument("--indir", help="Input directory for some replacement snippets", default="ubuntu22.04/Snippets")
-    parser.add_argument("--input", help="Input Dockerfile", default="ubuntu22.04/Dockerfile.base")
+    parser.add_argument("--indir", help="Input directory for some replacement snippets", default="ubuntu24.04/Snippets")
+    parser.add_argument("--input", help="Input Dockerfile", default="ubuntu24.04/Dockerfile.base")
     parser.add_argument("--cuda_ver", help="CUDA version(s) list (GPU only, | separated)", default="")
     parser.add_argument("--dnn_arch", help="DNN architecture build(s) list (GPU only, | separated)", default="")
     parser.add_argument("--cudnn_ver", help="CUDNN version (GPU only, if specified force pull of cuddn from the internet versus using a FROM with cudnn)", default="")

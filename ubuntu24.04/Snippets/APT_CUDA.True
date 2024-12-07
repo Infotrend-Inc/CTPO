@@ -1,0 +1,5 @@
+# Additional CUDA apt installs (with --no-install-recommends)
+ENV CTPO_CUDA_APT
+RUN apt-get install -y --no-install-recommends \
+    time ${CTPO_CUDA_APT} \
+  && apt-get clean
