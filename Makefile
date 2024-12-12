@@ -196,6 +196,7 @@ build_prep:
 		--torchvision_version=${CTPO_TORCHVISION} \
 		--torchdata_version=${CTPO_TORCHDATA} \
 		--clang_version=${CLANG_VERSION} \
+		--copyfile=tools/withincontainer_checker.sh \
 	&& sync
 
 	@while [ ! -f ${BUILD_DESTDIR}/env.txt ]; do sleep 1; done
@@ -243,10 +244,11 @@ actual_build:
 	@echo "  Docker runtime: ${CHECK_DOCKER_RUNTIME} / Build requirements: ${CTPO_BUILD}"
 	@echo ""
 	@echo "-- Docker command to be run:"
-	@echo "BUILDX_EXPERIMENTAL=1 ${DOCKER_PRE} docker buildx debug --on=error build --progress plain --platform linux/amd64 ${DOCKER_BUILD_ARGS} \\" > ${VAR_NT}.cmd
+	@echo "cd ${BUILD_DESTDIR};" > ${VAR_NT}.cmd
+	@echo "BUILDX_EXPERIMENTAL=1 ${DOCKER_PRE} docker buildx debug --on=error build --progress plain --platform linux/amd64 ${DOCKER_BUILD_ARGS} \\" >> ${VAR_NT}.cmd
 	@echo "  --build-arg CTPO_NUMPROC=\"$(CTPO_NUMPROC)\" \\" >> ${VAR_NT}.cmd
 	@echo "  --tag=\"${CTPO_DESTIMAGE}\" \\" >> ${VAR_NT}.cmd
-	@echo "  -f ${BUILD_DESTDIR}/Dockerfile \\" >> ${VAR_NT}.cmd
+	@echo "  -f Dockerfile \\" >> ${VAR_NT}.cmd
 	@echo "  ." >> ${VAR_NT}.cmd
 	@cat ${VAR_NT}.cmd | tee ${VAR_NT}.log.temp | tee -a ${VAR_CV} | tee -a ${VAR_TF} | tee -a ${VAR_FF} | tee -a ${VAR_PT} | tee -a ${VAR_PY}
 	@echo "" | tee -a ${VAR_NT}.log.temp

@@ -202,7 +202,7 @@ RUN apt-get install -y python3-venv \
 # with v4 extensions are installed using the extension manager, see https://jupyterlab.readthedocs.io/en/stable/user/extensions.html#id11
 
 RUN touch /.within_container
-COPY tools/withincontainer_checker.sh /tmp/withincontainer_checker.sh
+COPY withincontainer_checker.sh /tmp/withincontainer_checker.sh
 RUN chmod +x /tmp/withincontainer_checker.sh \
   && /tmp/withincontainer_checker.sh
 

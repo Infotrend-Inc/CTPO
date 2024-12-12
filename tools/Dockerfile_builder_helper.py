@@ -328,19 +328,15 @@ def return_BUILD_TORCH(cuda_version, pytorch_version, indir, args):
     if os.path.isfile(patch):
         dfile = f"{args.destdir}/torchvision.patch"
         shutil.copy(patch, f"{args.destdir}/torchvision.patch")
-        # replace / with ___
-        dfile = dfile.replace("/", "___")
-        shutil.copy(patch, f"{dfile}.temp")
-        tmp = replace_line(tmp, "COPY torchvision.patch", f"COPY {dfile}.temp /tmp/torchvision.patch")
+        dfilename = os.path.basename(patch)
+        tmp = replace_line(tmp, "COPY torchvision.patch", "COPY torchvision.patch /tmp/torchvision.patch")
     tmp = replace_line(tmp, "ENV CTPO_TORCHAUDIO=",  f"ENV CTPO_TORCHAUDIO={args.torchaudio_version}")
     patch = f"{indir}/PATCH_TORCHAUDIO.{mode}.{args.torchaudio_version}"
     if os.path.isfile(patch):
         dfile = f"{args.destdir}/torchaudio.patch"
         shutil.copy(patch, f"{args.destdir}/torchaudio.patch")
-        # replace / with ___
-        dfile = dfile.replace("/", "___")
-        shutil.copy(patch, f"{dfile}.temp")
-        tmp = replace_line(tmp, "COPY torchaudio.patch", f"COPY {dfile}.temp /tmp/torchaudio.patch")
+        dfilename = os.path.basename(patch)
+        tmp = replace_line(tmp, "COPY torchaudio.patch", "COPY torchaudio.patch /tmp/torchaudio.patch")
     tmp = replace_line(tmp, "ENV CTPO_TORCHDATA=", f"ENV CTPO_TORCHDATA={args.torchdata_version}")
 #    tmp = replace_line(tmp, "ENV CTPO_TORCHTEXT=",  f"ENV CTPO_TORCHTEXT={args.torchtext_version}")
     
@@ -466,6 +462,7 @@ def main():
     parser.add_argument("--torchdata_version",  help="TorchData version",  default="")
 #    parser.add_argument("--torchtext_version",  help="TorchText version",  default="")
     parser.add_argument("--clang_version", help="Clang version", default="")
+    parser.add_argument("--copyfile", help="Copy file to destination directory", default="")
     args = parser.parse_args()
 
     if not os.path.isfile(args.input):
@@ -554,6 +551,11 @@ def main():
         if args.cudnn_ver:
             if isNotBlank(args.cudnn_ver):
                 cudnn_install = args.cudnn_ver
+
+    if args.copyfile:
+        if not os.path.isfile(args.copyfile):
+            error_exit(f"Error: Copy file {args.copyfile} does not exist")
+        shutil.copy(args.copyfile, args.destdir)
 
     (dockertxt, env) = build_dockerfile(args.input, args.indir, args.release, tensorflow_version, pytorch_version, cuda_version, dnn_used, cudnn_install, opencv_version, args.verbose, args)
 
