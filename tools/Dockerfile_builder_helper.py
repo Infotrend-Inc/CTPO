@@ -121,7 +121,7 @@ def return_FROM(cuda_version, cudnn_install):
 
 ##
 
-def return_BOOTSTRAP_NVIDIA(cuda_version, cudnn_install, indir):
+def return_BOOTSTRAP_NVIDIA(cuda_version, cudnn_install, indir, args):
     if cudnn_install is None:
         return slurp_file(f"{indir}/BOOTSTRAP_NVIDIA.False")
     
@@ -147,8 +147,20 @@ def return_BOOTSTRAP_NVIDIA(cuda_version, cudnn_install, indir):
         tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda-12")
     elif cuda_version.startswith("12.5.1"):
         tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda-12")
-    elif cuda_version.startswith("13.0"):
-        tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda12.4")
+#    elif cuda_version.startswith("13.0"):
+#        tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda12.4")
+
+#    rtfile = None
+#    if isNotBlank(args.TensorRT):
+#        rtfile = "MissingSnippet"
+#        if cuda_version.startswith("12"):
+#            rtfile = f"{indir}/BOOTSTRAP_NVIDIA.GPU.TensorRT12"
+#
+#    if rtfile is not None:
+#        if os.path.isfile(rtfile):
+#            tmp += slurp_file(rtfile)
+#        else:
+#            error_exit(f"Error: TensorRT requested for CUDA {cuda_version}, but issue with snippet ({rtfile})")
 
     return tmp
 
@@ -228,6 +240,14 @@ def return_PIP_KERAS(tensorflow_version, indir):
 
 ##
 
+def return_APT_PIP_TENSORRT(tensorrt, indir):
+    if isBlank(tensorrt):
+        return slurp_file(f"{indir}/APT_PIP_TENSORRT.False")
+    
+    return slurp_file(f"{indir}/APT_PIP_TENSORRT.True")
+
+##
+
 def return_BUILD_TensorFlow(tensorflow_version, cuda_version, dnn_used, indir, args):
     if tensorflow_version is None:
         return slurp_file(f"{indir}/BUILD_TensorFlow.False")
@@ -254,6 +274,12 @@ def return_BUILD_TensorFlow(tensorflow_version, cuda_version, dnn_used, indir, a
         tmp = replace_line(tmp, "ENV TF_NEED_CLANG", f"ENV TF_NEED_CLANG=1")
     else:
         tmp = replace_line(tmp, "ENV TF_NEED_CLANG", f"ENV TF_NEED_CLANG=0")
+
+    # TennsorFlow 2.18.0 does not support TensorRT
+    # https://github.com/tensorflow/tensorflow/blob/r2.17/RELEASE.md
+    # "TensorRT support: this is the last release supporting TensorRT. It will be removed in the next release."
+#    if isNotBlank(args.TensorRT):
+#        tmp = replace_line(tmp, "ENV TF_NEED_TENSORRT", f"ENV TF_NEED_TENSORRT=1")
 
     return tmp
 
@@ -358,7 +384,7 @@ def build_dockerfile(input, indir, release, tensorflow_version, pytorch_version,
     env += f"CTPO_FROM={repl_v}\n"
 
     #==BOOTSTRAP_NVIDIA==#
-    repl = return_BOOTSTRAP_NVIDIA(cuda_version, cudnn_install, indir)
+    repl = return_BOOTSTRAP_NVIDIA(cuda_version, cudnn_install, indir, args)
     dockertxt = replace_line(dockertxt, "#==BOOTSTRAP_NVIDIA==#", repl)
 
     #==CTPO_NUMPROC==#
@@ -398,6 +424,10 @@ def build_dockerfile(input, indir, release, tensorflow_version, pytorch_version,
     #==PIP_KERAS==#
     repl = return_PIP_KERAS(tensorflow_version, indir)
     dockertxt = replace_line(dockertxt, "#==PIP_KERAS==#", repl)
+
+    #==APT_PIP_TENSORRT==#
+    repl = return_APT_PIP_TENSORRT(args.TensorRT, indir)
+    dockertxt = replace_line(dockertxt, "#==APT_PIP_TENSORRT==#", repl)
 
     #==BUILD_TensorFlow==#
     repl = return_BUILD_TensorFlow(tensorflow_version, cuda_version, dnn_used, indir, args)
@@ -463,6 +493,7 @@ def main():
 #    parser.add_argument("--torchtext_version",  help="TorchText version",  default="")
     parser.add_argument("--clang_version", help="Clang version", default="")
     parser.add_argument("--copyfile", help="Copy file to destination directory", default="")
+    parser.add_argument("--TensorRT", help="Enable TensorRT (must provide a value to enable, this value is used in the container naming)", default="")
     args = parser.parse_args()
 
     if not os.path.isfile(args.input):

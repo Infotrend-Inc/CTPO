@@ -47,6 +47,10 @@ CKTK_CHECK="yes"
 STABLE_CUDA=12.5.1
 STABLE_CUDNN=9.3.0.75
 
+# TensortRT: apt-cache madison  tensorrt-dev
+TENSORRT="-TRT"
+#TENSORRT=""
+
 # CUDNN needs 5.3 at minimum, extending list from https://en.wikipedia.org/wiki/CUDA#GPUs_supported 
 # Skipping Tegra, Jetson, ... (ie not desktop/server GPUs) from this list
 # Keeping from Pascal and above
@@ -176,7 +180,7 @@ ${TPO_BUILDALL} ${CTPO_BUILDALL}:
 build_prep:
 	@$(eval CTPO_NAME=$(shell echo ${BTARG} | cut -d- -f 1))
 	@$(eval CTPO_TAG=$(shell echo ${BTARG} | cut -d- -f 2))
-	@$(eval CTPO_FULLTAG=${CTPO_TAG}-${CTPO_RELEASE})
+	@$(eval CTPO_FULLTAG=${CTPO_TAG}-${CTPO_RELEASE}${TENSORRT})
 	@$(eval CTPO_FULLNAME=${CTPO_NAME}-${CTPO_FULLTAG})
 	@echo ""; echo ""; echo "[*****] Build: ${CTPO_NAME}:${CTPO_FULLTAG}";
 	@if [ ! -f ${DFBH} ]; then echo "ERROR: ${DFBH} does not exist"; exit 1; fi
@@ -197,6 +201,7 @@ build_prep:
 		--torchdata_version=${CTPO_TORCHDATA} \
 		--clang_version=${CLANG_VERSION} \
 		--copyfile=tools/withincontainer_checker.sh \
+		--TensorRT="${TENSORRT}" \
 	&& sync
 
 	@while [ ! -f ${BUILD_DESTDIR}/env.txt ]; do sleep 1; done
@@ -245,7 +250,7 @@ actual_build:
 	@echo ""
 	@echo "-- Docker command to be run:"
 	@echo "cd ${BUILD_DESTDIR};" > ${VAR_NT}.cmd
-	@echo "BUILDX_EXPERIMENTAL=1 ${DOCKER_PRE} docker buildx debug --on=error build --progress plain --platform linux/amd64 ${DOCKER_BUILD_ARGS} \\" >> ${VAR_NT}.cmd
+	@echo "BUILDX_EXPERIMENTAL=1 ${DOCKER_PRE} docker buildx debug --on=error build --progress plain --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=256000000 --platform linux/amd64 ${DOCKER_BUILD_ARGS} \\" >> ${VAR_NT}.cmd
 	@echo "  --build-arg CTPO_NUMPROC=\"$(CTPO_NUMPROC)\" \\" >> ${VAR_NT}.cmd
 	@echo "  --tag=\"${CTPO_DESTIMAGE}\" \\" >> ${VAR_NT}.cmd
 	@echo "  -f Dockerfile \\" >> ${VAR_NT}.cmd

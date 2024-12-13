@@ -138,20 +138,14 @@ RUN touch /tmp/.${CTPO_BUILD}_build
 
 #==FIX_Misc==#
 
-# Setup pip 
-#RUN apt-get install -y python3-venv \
-#  && python3 -m venv /venv \
-#  && /venv/bin/pip install -U pip \
-#  && /venv/bin/pip install -U setuptools
-#ENV VIRTUAL_ENV="/venv"
-#ENV PATH="${VIRTUAL_ENV}/bin:$PATH"
-
 # Setup pip
 RUN mv /usr/lib/python3.12/EXTERNALLY-MANAGED /usr/lib/python3.12/EXTERNALLY-MANAGED.old \
   && wget -q -O /tmp/get-pip.py --no-check-certificate https://bootstrap.pypa.io/get-pip.py \
   && python3 /tmp/get-pip.py \
   && pip3 install -U pip \
   && rm /tmp/get-pip.py
+
+#==APT_PIP_TENSORRT==#
 
 # Install Python tools (for buiding) 
 RUN pip3 install -U --ignore-installed \
@@ -179,8 +173,8 @@ RUN pip3 install -U --ignore-installed \
     matplotlib \
     moviepy \
     pandas \
-  #==PIP_KERAS==#
     mkl-static mkl-include \
+  #==PIP_KERAS==#
   && rm -rf /root/.cache/pip
 
 #==BUILD_TensorFlow==#
