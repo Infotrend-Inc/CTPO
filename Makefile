@@ -177,7 +177,7 @@ build_tpo: ${TPO_BUILDALL}
 build_ctpo:	${CTPO_BUILDALL}
 
 build_ctpo_tensorrt:
-	@BTARG="$@" USE_TENSORRT="${TENSORRT}" make build_prep
+	@BTARG="${CTPO_BUILDALL_TP}" USE_TENSORRT="${TENSORRT}" make build_prep
 
 ${TPO_BUILDALL} ${CTPO_BUILDALL}:
 	@BTARG="$@" USE_TENSORRT="" make build_prep
@@ -211,7 +211,7 @@ build_prep:
 
 	@while [ ! -f ${BUILD_DESTDIR}/env.txt ]; do sleep 1; done
 
-	@CTPO_NAME=${CTPO_NAME} CTPO_TAG=${CTPO_TAG} CTPO_FULLTAG=${CTPO_FULLTAG} BUILD_DESTDIR=${BUILD_DESTDIR} CTPO_FULLNAME=${CTPO_FULLNAME} make pre_build
+	@CTPO_NAME=${CTPO_NAME} CTPO_TAG=${CTPO_TAG} CTPO_FULLTAG=${CTPO_FULLTAG} BUILD_DESTDIR=${BUILD_DESTDIR} CTPO_FULLNAME=${CTPO_FULLNAME} CTPO_RELEASE=${CTPO_RELEASE} make pre_build
 
 pre_build:
 	@$(eval CTPO_FROM=${shell cat ${BUILD_DESTDIR}/env.txt | grep CTPO_FROM | cut -d= -f 2})
@@ -223,7 +223,7 @@ pre_build:
 		if [ -f ./${CTPO_FULLNAME}.log ]; then \
 			echo "  !! Log file (${CTPO_FULLNAME}.log) exists, skipping rebuild (remove to force)"; echo ""; \
 		else \
-			CTPO_NAME=${CTPO_NAME} CTPO_TAG=${CTPO_TAG} CTPO_FULLTAG=${CTPO_FULLTAG} CTPO_FROM=${CTPO_FROM} BUILD_DESTDIR=${BUILD_DESTDIR} CTPO_FULLNAME=${CTPO_FULLNAME} CTPO_BUILD="${CTPO_BUILD}" make actual_build; \
+			CTPO_NAME=${CTPO_NAME} CTPO_TAG=${CTPO_TAG} CTPO_FULLTAG=${CTPO_FULLTAG} CTPO_FROM=${CTPO_FROM} BUILD_DESTDIR=${BUILD_DESTDIR} CTPO_FULLNAME=${CTPO_FULLNAME} CTPO_BUILD="${CTPO_BUILD}" CTPO_RELEASE=${CTPO_RELEASE} make actual_build; \
 		fi; \
 	fi
 
@@ -245,6 +245,7 @@ actual_build:
 	@$(eval VAR_FF="${BUILD_DESTDIR}/FFmpeg--Details.txt")
 	@$(eval VAR_PT="${BUILD_DESTDIR}/PyTorch--Details.txt")
 	@${eval CTPO_DESTIMAGE="${CTPO_NAME}:${CTPO_FULLTAG}"}
+	@${eval CTPO_BUILDX="ctpo-${CTPO_RELEASE}_builder"}
 	@mkdir -p ${VAR_DD}
 	@echo ""
 	@echo "  CTPO_FROM               : ${CTPO_FROM}" | tee ${VAR_CV} | tee ${VAR_TF} | tee ${VAR_FF} | tee ${VAR_PT} | tee ${VAR_PY}
@@ -254,8 +255,9 @@ actual_build:
 	@echo "  Docker runtime: ${CHECK_DOCKER_RUNTIME} / Build requirements: ${CTPO_BUILD}"
 	@echo ""
 	@echo "-- Docker command to be run:"
-	@echo "cd ${BUILD_DESTDIR};" > ${VAR_NT}.cmd
-	@echo "docker buildx create --use --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=256000000 \\ " >> ${VAR_NT}.cmd
+	@echo "cd ${BUILD_DESTDIR}" > ${VAR_NT}.cmd
+	@echo "docker buildx ls | grep -q ${CTPO_BUILDX} && echo \"builder already exists -- to delete it, use: docker buildx rm ${CTPO_BUILDX}\" || docker buildx create --name ${CTPO_BUILDX} --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=256000000"  >> ${VAR_NT}.cmd
+	@echo "docker buildx use ${CTPO_BUILDX} || exit 1" >> ${VAR_NT}.cmd
 	@echo "BUILDX_EXPERIMENTAL=1 ${DOCKER_PRE} docker buildx debug --on=error build --progress plain --platform linux/amd64 ${DOCKER_BUILD_ARGS} \\" >> ${VAR_NT}.cmd
 	@echo "  --build-arg CTPO_NUMPROC=\"$(CTPO_NUMPROC)\" \\" >> ${VAR_NT}.cmd
 	@echo "  --tag=\"${CTPO_DESTIMAGE}\" \\" >> ${VAR_NT}.cmd
