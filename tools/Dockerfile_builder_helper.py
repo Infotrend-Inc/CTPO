@@ -492,8 +492,8 @@ def main():
     parser.add_argument("--torchdata_version",  help="TorchData version",  default="")
 #    parser.add_argument("--torchtext_version",  help="TorchText version",  default="")
     parser.add_argument("--clang_version", help="Clang version", default="")
-    parser.add_argument("--copyfile", help="Copy file to destination directory", default="")
-    parser.add_argument("--TensorRT", help="Enable TensorRT (must provide a value to enable, this value is used in the container naming)", default="")
+    parser.add_argument("--copyfile", help="Copy file to destination directory", nargs='+', default=[])
+    parser.add_argument("--TensorRT", help="Enable TensorRT (use any non-empty string to enable)", default="")
     args = parser.parse_args()
 
     if not os.path.isfile(args.input):
@@ -584,9 +584,10 @@ def main():
                 cudnn_install = args.cudnn_ver
 
     if args.copyfile:
-        if not os.path.isfile(args.copyfile):
-            error_exit(f"Error: Copy file {args.copyfile} does not exist")
-        shutil.copy(args.copyfile, args.destdir)
+        for f in args.copyfile:
+            if not os.path.isfile(f):
+                error_exit(f"Error: Copy file {f} does not exist")
+            shutil.copy(f, args.destdir)
 
     (dockertxt, env) = build_dockerfile(args.input, args.indir, args.release, tensorflow_version, pytorch_version, cuda_version, dnn_used, cudnn_install, opencv_version, args.verbose, args)
 
