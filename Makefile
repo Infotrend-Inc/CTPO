@@ -47,9 +47,9 @@ CKTK_CHECK="yes"
 STABLE_CUDA=12.5.1
 STABLE_CUDNN=9.3.0.75
 
-# TensortRT: apt-cache madison  tensorrt-dev
-TENSORRT="-TRT"
-#TENSORRT=""
+# TensortRT:
+# check available version: apt-cache madison  tensorrt-dev
+TENSORRT="-TensorRT"
 
 # CUDNN needs 5.3 at minimum, extending list from https://en.wikipedia.org/wiki/CUDA#GPUs_supported 
 # Skipping Tegra, Jetson, ... (ie not desktop/server GPUs) from this list
@@ -149,6 +149,8 @@ all:
 	@echo "    tensorflow_opencv OR pytorch_opencv OR tensorflow_pytorch_opencv (aka TPO, for CPU): "; echo -n "      "; echo ${TPO_BUILDALL} | sed -e 's/ /\n      /g'
 	@echo "  build_ctpo (requires GPU Docker runtime):"
 	@echo "    cuda_tensorflow_opencv OR cuda_pytorch_opencv OR cuda_tensorflow_pytorch_opencv (aka CTPO, for NVIDIA GPU): "; echo -n "      "; echo ${CTPO_BUILDALL} | sed -e 's/ /\n      /g'
+	@echo "  build_ctpo_tensorrt (requires GPU Docker runtime):"
+	@echo "    cuda_tensorflow_pytorch_opencv (aka CTPO, for NVIDIA GPU with TensorRT): same as cuda_tensorflow_pytorch_opencv but installing TensorRT libraries"; echo "      Note:TensorRT is not supported by TensorFlow since 2.18.0"
 	@echo ""
 	@echo "*** Jupyter Labs ready containers (requires the base TPO & CTPO container to either be built locally or docker will attempt to pull otherwise)"
 	@echo "  jupyter_tpo: "; echo -n "      "; echo ${TPO_JUP}
@@ -156,7 +158,7 @@ all:
 	@echo ""
 
 ## special command to build all targets
-build_all: ${TPO_BUILDALL} ${CTPO_BUILDALL}
+build_all: ${TPO_BUILDALL} ${CTPO_BUILDALL} build_ctpo_tensorrt
 
 tensorflow_opencv: ${TPO_BUILDALL_T}
 
@@ -174,13 +176,16 @@ build_tpo: ${TPO_BUILDALL}
 
 build_ctpo:	${CTPO_BUILDALL}
 
+build_ctpo_tensorrt:
+	@BTARG="$@" USE_TENSORRT="${TENSORRT}" make build_prep
+
 ${TPO_BUILDALL} ${CTPO_BUILDALL}:
-	@BTARG="$@" make build_prep
+	@BTARG="$@" USE_TENSORRT="" make build_prep
 
 build_prep:
 	@$(eval CTPO_NAME=$(shell echo ${BTARG} | cut -d- -f 1))
 	@$(eval CTPO_TAG=$(shell echo ${BTARG} | cut -d- -f 2))
-	@$(eval CTPO_FULLTAG=${CTPO_TAG}-${CTPO_RELEASE}${TENSORRT})
+	@$(eval CTPO_FULLTAG=${CTPO_TAG}-${CTPO_RELEASE}${USE_TENSORRT})
 	@$(eval CTPO_FULLNAME=${CTPO_NAME}-${CTPO_FULLTAG})
 	@echo ""; echo ""; echo "[*****] Build: ${CTPO_NAME}:${CTPO_FULLTAG}";
 	@if [ ! -f ${DFBH} ]; then echo "ERROR: ${DFBH} does not exist"; exit 1; fi
@@ -201,7 +206,7 @@ build_prep:
 		--torchdata_version=${CTPO_TORCHDATA} \
 		--clang_version=${CLANG_VERSION} \
 		--copyfile=tools/withincontainer_checker.sh \
-		--TensorRT="${TENSORRT}" \
+		--TensorRT="${USE_TENSORRT}" \
 	&& sync
 
 	@while [ ! -f ${BUILD_DESTDIR}/env.txt ]; do sleep 1; done
@@ -250,7 +255,8 @@ actual_build:
 	@echo ""
 	@echo "-- Docker command to be run:"
 	@echo "cd ${BUILD_DESTDIR};" > ${VAR_NT}.cmd
-	@echo "BUILDX_EXPERIMENTAL=1 ${DOCKER_PRE} docker buildx debug --on=error build --progress plain --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=256000000 --platform linux/amd64 ${DOCKER_BUILD_ARGS} \\" >> ${VAR_NT}.cmd
+	@echo "docker buildx create --use --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=256000000 \\ " >> ${VAR_NT}.cmd
+	@echo "BUILDX_EXPERIMENTAL=1 ${DOCKER_PRE} docker buildx debug --on=error build --progress plain --platform linux/amd64 ${DOCKER_BUILD_ARGS} \\" >> ${VAR_NT}.cmd
 	@echo "  --build-arg CTPO_NUMPROC=\"$(CTPO_NUMPROC)\" \\" >> ${VAR_NT}.cmd
 	@echo "  --tag=\"${CTPO_DESTIMAGE}\" \\" >> ${VAR_NT}.cmd
 	@echo "  -f Dockerfile \\" >> ${VAR_NT}.cmd
