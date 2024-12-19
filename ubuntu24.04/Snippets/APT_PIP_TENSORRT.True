@@ -1,0 +1,10 @@
+
+RUN apt-get install -y \
+    tensorrt \
+    tensorrt-dev \
+    tensorrt-libs \
+  && apt-get clean
+
+RUN pip3 install -U --ignore-installed \
+    tensorrt \
+  && rm -rf /root/.cache/pip

@@ -4,7 +4,10 @@ SHELL := /bin/bash
 .NOTPARALLEL:
 
 # Release to match data of Dockerfile and follow YYYYMMDD pattern
-CTPO_RELEASE=20241125
+CTPO_RELEASE=20241219
+BUILDX_RELEASE=${CTPO_RELEASE}
+# Attempt to use cache for the buildx images, change value to create clean buildx base
+BUILDX_RELEASE=202412wip
 
 # The default is not to build OpenCV non-free or build FFmpeg with libnpp, as those would make the images unredistributable 
 # Replace "free" by "unredistributable" if you need to use those for a personal build
@@ -37,7 +40,7 @@ CKTK_CHECK="yes"
 # https://docs.nvidia.com/deploy/cuda-compatibility/index.html#binary-compatibility__table-toolkit-driver
 #
 # According to https://hub.docker.com/r/nvidia/cuda/
-# https://hub.docker.com/r/nvidia/cuda/tags?page=1&name=22.04
+# https://hub.docker.com/r/nvidia/cuda/tags?page=1&name=24.04
 #
 # Note: CUDA11 minimum version has to match the one used by PyTorch
 # From PyTorch: Deprecation of CUDA 11.6 and Python 3.7 Support
@@ -46,6 +49,10 @@ CKTK_CHECK="yes"
 # TF will likely not work unless we follow the recongized versions https://www.tensorflow.org/install/source#gpu
 STABLE_CUDA=12.5.1
 STABLE_CUDNN=9.3.0.75
+
+# TensortRT:
+# check available version: apt-cache madison  tensorrt-dev
+TENSORRT="-TensorRT"
 
 # CUDNN needs 5.3 at minimum, extending list from https://en.wikipedia.org/wiki/CUDA#GPUs_supported 
 # Skipping Tegra, Jetson, ... (ie not desktop/server GPUs) from this list
@@ -145,6 +152,8 @@ all:
 	@echo "    tensorflow_opencv OR pytorch_opencv OR tensorflow_pytorch_opencv (aka TPO, for CPU): "; echo -n "      "; echo ${TPO_BUILDALL} | sed -e 's/ /\n      /g'
 	@echo "  build_ctpo (requires GPU Docker runtime):"
 	@echo "    cuda_tensorflow_opencv OR cuda_pytorch_opencv OR cuda_tensorflow_pytorch_opencv (aka CTPO, for NVIDIA GPU): "; echo -n "      "; echo ${CTPO_BUILDALL} | sed -e 's/ /\n      /g'
+	@echo "  build_ctpo_tensorrt (requires GPU Docker runtime):"
+	@echo "    cuda_tensorflow_pytorch_opencv (aka CTPO, for NVIDIA GPU with TensorRT): same as cuda_tensorflow_pytorch_opencv but installing TensorRT libraries"; echo "      Note:TensorRT is not supported by TensorFlow since 2.18.0"
 	@echo ""
 	@echo "*** Jupyter Labs ready containers (requires the base TPO & CTPO container to either be built locally or docker will attempt to pull otherwise)"
 	@echo "  jupyter_tpo: "; echo -n "      "; echo ${TPO_JUP}
@@ -152,7 +161,7 @@ all:
 	@echo ""
 
 ## special command to build all targets
-build_all: ${TPO_BUILDALL} ${CTPO_BUILDALL}
+build_all: ${TPO_BUILDALL} ${CTPO_BUILDALL} build_ctpo_tensorrt
 
 tensorflow_opencv: ${TPO_BUILDALL_T}
 
@@ -170,13 +179,16 @@ build_tpo: ${TPO_BUILDALL}
 
 build_ctpo:	${CTPO_BUILDALL}
 
+build_ctpo_tensorrt:
+	@BTARG="${CTPO_BUILDALL_TP}" USE_TENSORRT="${TENSORRT}" make build_prep
+
 ${TPO_BUILDALL} ${CTPO_BUILDALL}:
-	@BTARG="$@" make build_prep
+	@BTARG="$@" USE_TENSORRT="" make build_prep
 
 build_prep:
 	@$(eval CTPO_NAME=$(shell echo ${BTARG} | cut -d- -f 1))
 	@$(eval CTPO_TAG=$(shell echo ${BTARG} | cut -d- -f 2))
-	@$(eval CTPO_FULLTAG=${CTPO_TAG}-${CTPO_RELEASE})
+	@$(eval CTPO_FULLTAG=${CTPO_TAG}-${CTPO_RELEASE}${USE_TENSORRT})
 	@$(eval CTPO_FULLNAME=${CTPO_NAME}-${CTPO_FULLTAG})
 	@echo ""; echo ""; echo "[*****] Build: ${CTPO_NAME}:${CTPO_FULLTAG}";
 	@if [ ! -f ${DFBH} ]; then echo "ERROR: ${DFBH} does not exist"; exit 1; fi
@@ -196,11 +208,13 @@ build_prep:
 		--torchvision_version=${CTPO_TORCHVISION} \
 		--torchdata_version=${CTPO_TORCHDATA} \
 		--clang_version=${CLANG_VERSION} \
+		--copyfile=tools/withincontainer_checker.sh \
+		--TensorRT="${USE_TENSORRT}" \
 	&& sync
 
 	@while [ ! -f ${BUILD_DESTDIR}/env.txt ]; do sleep 1; done
 
-	@CTPO_NAME=${CTPO_NAME} CTPO_TAG=${CTPO_TAG} CTPO_FULLTAG=${CTPO_FULLTAG} BUILD_DESTDIR=${BUILD_DESTDIR} CTPO_FULLNAME=${CTPO_FULLNAME} make pre_build
+	@CTPO_NAME=${CTPO_NAME} CTPO_TAG=${CTPO_TAG} CTPO_FULLTAG=${CTPO_FULLTAG} BUILD_DESTDIR=${BUILD_DESTDIR} CTPO_FULLNAME=${CTPO_FULLNAME} CTPO_RELEASE=${CTPO_RELEASE} make pre_build
 
 pre_build:
 	@$(eval CTPO_FROM=${shell cat ${BUILD_DESTDIR}/env.txt | grep CTPO_FROM | cut -d= -f 2})
@@ -212,7 +226,7 @@ pre_build:
 		if [ -f ./${CTPO_FULLNAME}.log ]; then \
 			echo "  !! Log file (${CTPO_FULLNAME}.log) exists, skipping rebuild (remove to force)"; echo ""; \
 		else \
-			CTPO_NAME=${CTPO_NAME} CTPO_TAG=${CTPO_TAG} CTPO_FULLTAG=${CTPO_FULLTAG} CTPO_FROM=${CTPO_FROM} BUILD_DESTDIR=${BUILD_DESTDIR} CTPO_FULLNAME=${CTPO_FULLNAME} CTPO_BUILD="${CTPO_BUILD}" make actual_build; \
+			CTPO_NAME=${CTPO_NAME} CTPO_TAG=${CTPO_TAG} CTPO_FULLTAG=${CTPO_FULLTAG} CTPO_FROM=${CTPO_FROM} BUILD_DESTDIR=${BUILD_DESTDIR} CTPO_FULLNAME=${CTPO_FULLNAME} CTPO_BUILD="${CTPO_BUILD}" CTPO_RELEASE=${CTPO_RELEASE} make actual_build; \
 		fi; \
 	fi
 
@@ -234,6 +248,7 @@ actual_build:
 	@$(eval VAR_FF="${BUILD_DESTDIR}/FFmpeg--Details.txt")
 	@$(eval VAR_PT="${BUILD_DESTDIR}/PyTorch--Details.txt")
 	@${eval CTPO_DESTIMAGE="${CTPO_NAME}:${CTPO_FULLTAG}"}
+	@${eval CTPO_BUILDX="ctpo-${BUILDX_RELEASE}_builder"}
 	@mkdir -p ${VAR_DD}
 	@echo ""
 	@echo "  CTPO_FROM               : ${CTPO_FROM}" | tee ${VAR_CV} | tee ${VAR_TF} | tee ${VAR_FF} | tee ${VAR_PT} | tee ${VAR_PY}
@@ -243,11 +258,17 @@ actual_build:
 	@echo "  Docker runtime: ${CHECK_DOCKER_RUNTIME} / Build requirements: ${CTPO_BUILD}"
 	@echo ""
 	@echo "-- Docker command to be run:"
-	@echo "BUILDX_EXPERIMENTAL=1 ${DOCKER_PRE} docker buildx debug --on=error build --progress plain --platform linux/amd64 ${DOCKER_BUILD_ARGS} \\" > ${VAR_NT}.cmd
+	@echo "cd ${BUILD_DESTDIR}" > ${VAR_NT}.cmd
+	@echo "docker buildx ls | grep -q ${CTPO_BUILDX} && echo \"builder already exists -- to delete it, use: docker buildx rm ${CTPO_BUILDX}\" || docker buildx create --name ${CTPO_BUILDX} --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=256000000"  >> ${VAR_NT}.cmd
+	@echo "docker buildx use ${CTPO_BUILDX} || exit 1" >> ${VAR_NT}.cmd
+#	@echo "echo \"===== Build Start time: \" `date`" >> ${VAR_NT}.cmd
+	@echo "BUILDX_EXPERIMENTAL=1 ${DOCKER_PRE} docker buildx debug --on=error build --progress plain --platform linux/amd64 ${DOCKER_BUILD_ARGS} \\" >> ${VAR_NT}.cmd
 	@echo "  --build-arg CTPO_NUMPROC=\"$(CTPO_NUMPROC)\" \\" >> ${VAR_NT}.cmd
 	@echo "  --tag=\"${CTPO_DESTIMAGE}\" \\" >> ${VAR_NT}.cmd
-	@echo "  -f ${BUILD_DESTDIR}/Dockerfile \\" >> ${VAR_NT}.cmd
+	@echo "  -f Dockerfile \\" >> ${VAR_NT}.cmd
+	@echo "  --load \\" >> ${VAR_NT}.cmd
 	@echo "  ." >> ${VAR_NT}.cmd
+#	@echo "echo \"===== Build End time: \" `date`" >> ${VAR_NT}.cmd
 	@cat ${VAR_NT}.cmd | tee ${VAR_NT}.log.temp | tee -a ${VAR_CV} | tee -a ${VAR_TF} | tee -a ${VAR_FF} | tee -a ${VAR_PT} | tee -a ${VAR_PY}
 	@echo "" | tee -a ${VAR_NT}.log.temp
 	@echo "Press Ctl+c within 5 seconds to cancel"
@@ -266,7 +287,6 @@ post_build:
 	@printf "\n\n***** TorchVision configuration:\n" >> ${VAR_PT}; docker cp ${tmp_id}:/tmp/torchvision_config.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PT}
 	@printf "\n\n***** TorchAudio configuration:\n" >> ${VAR_PT}; docker cp ${tmp_id}:/tmp/torchaudio_config.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PT}
 	@printf "\n\n***** TorchData configuration:\n" >> ${VAR_PT}; docker cp ${tmp_id}:/tmp/torchdata_config.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PT}
-#	@printf "\n\n***** TorchText configuration:\n" >> ${VAR_PT}; docker cp ${tmp_id}:/tmp/torchtext_config.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PT}
 	@printf "\n\n***** Python configuration:\n" >> ${VAR_PY}; docker cp ${tmp_id}:/tmp/python_info.txt /tmp/ctpo; cat /tmp/ctpo >> ${VAR_PY}
 	@docker rm -v ${tmp_id}
 
@@ -313,6 +333,15 @@ force_pt_check:
 force_cv_check:
 	@echo "cv_hw"
 	@${DOCKER_PRE} docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/cv_hw.py | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
+
+##### buildx rm
+buildx_rm:
+	@docker buildx ls | grep -q ctpo-${BUILDX_RELEASE}_builder || echo "builder does not exist"
+	echo "** About to delete buildx: ctpo-${BUILDX_RELEASE}_builder"
+	@echo "Press Ctl+c within 5 seconds to cancel"
+	@for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""
+	@docker buildx rm ctpo-${BUILDX_RELEASE}_builder
+
 
 ##########
 ##### Build Details
@@ -451,8 +480,10 @@ docker_tag_push_core:
 #  % make build_ctpo
 # - Build ALL the TPO images
 #  % make build_tpo
+# - Build the TensorRT image
+#  % make build_ctpo_tensorrt
 # - Manually check that all the *.testlog contain valid information
-#  % less *.testlog
+#  % bat *.testlog
 # - Build the README-BuildDetails.md file
 #  % make dump_builddetails
 # - Add TAG_RELEASE tag to all the built images
@@ -485,3 +516,5 @@ docker_tag_push_core:
 #  % git tag YYYYMMDD
 #  % git push origin YYYYMMDD
 # - Create a release on GitHub using the YYYYMMDD tag, add the release notes, and publish
+# - delete the created docker builder (find its name then REPLACE it)
+#  % make buildx_rm

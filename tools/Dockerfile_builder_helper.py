@@ -110,18 +110,18 @@ def replace_line(text, search, replace):
 
 def return_FROM(cuda_version, cudnn_install):
     if cuda_version is None:
-        return "ubuntu:22.04"
+        return "ubuntu:24.04"
     
     if cudnn_install is None:
         if cuda_version.startswith("12.3."):
-            return f"nvidia/cuda:{cuda_version}-cudnn9-devel-ubuntu22.04"
-        return f"nvidia/cuda:{cuda_version}-cudnn8-devel-ubuntu22.04"
+            return f"nvidia/cuda:{cuda_version}-cudnn9-devel-ubuntu24.04"
+        return f"nvidia/cuda:{cuda_version}-cudnn8-devel-ubuntu24.04"
 
-    return f"nvidia/cuda:{cuda_version}-devel-ubuntu22.04"
+    return f"nvidia/cuda:{cuda_version}-devel-ubuntu24.04"
 
 ##
 
-def return_BOOTSTRAP_NVIDIA(cuda_version, cudnn_install, indir):
+def return_BOOTSTRAP_NVIDIA(cuda_version, cudnn_install, indir, args):
     if cudnn_install is None:
         return slurp_file(f"{indir}/BOOTSTRAP_NVIDIA.False")
     
@@ -147,8 +147,20 @@ def return_BOOTSTRAP_NVIDIA(cuda_version, cudnn_install, indir):
         tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda-12")
     elif cuda_version.startswith("12.5.1"):
         tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda-12")
-    elif cuda_version.startswith("13.0"):
-        tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda12.4")
+#    elif cuda_version.startswith("13.0"):
+#        tmp = replace_line(tmp, "ENV NV_CUDA_ADD=", f"ENV NV_CUDA_ADD=cuda12.4")
+
+#    rtfile = None
+#    if isNotBlank(args.TensorRT):
+#        rtfile = "MissingSnippet"
+#        if cuda_version.startswith("12"):
+#            rtfile = f"{indir}/BOOTSTRAP_NVIDIA.GPU.TensorRT12"
+#
+#    if rtfile is not None:
+#        if os.path.isfile(rtfile):
+#            tmp += slurp_file(rtfile)
+#        else:
+#            error_exit(f"Error: TensorRT requested for CUDA {cuda_version}, but issue with snippet ({rtfile})")
 
     return tmp
 
@@ -169,7 +181,7 @@ def return_CTPO_CUDA_APT(cuda_version, cudnn_install, indir):
 # Disabled until some of those packages are needed
     return slurp_file(f"{indir}/APT_CUDA.False")
 #    tmp = slurp_file(f"{indir}/APT_CUDA.True")
-#    # 22.04: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/
+#    # 24.04: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/
 #    repl = None
 #    if cuda_version == "11.7.1":
 #        repl = "11-7"
@@ -228,6 +240,14 @@ def return_PIP_KERAS(tensorflow_version, indir):
 
 ##
 
+def return_APT_PIP_TENSORRT(tensorrt, indir):
+    if isBlank(tensorrt):
+        return slurp_file(f"{indir}/APT_PIP_TENSORRT.False")
+    
+    return slurp_file(f"{indir}/APT_PIP_TENSORRT.True")
+
+##
+
 def return_BUILD_TensorFlow(tensorflow_version, cuda_version, dnn_used, indir, args):
     if tensorflow_version is None:
         return slurp_file(f"{indir}/BUILD_TensorFlow.False")
@@ -254,6 +274,12 @@ def return_BUILD_TensorFlow(tensorflow_version, cuda_version, dnn_used, indir, a
         tmp = replace_line(tmp, "ENV TF_NEED_CLANG", f"ENV TF_NEED_CLANG=1")
     else:
         tmp = replace_line(tmp, "ENV TF_NEED_CLANG", f"ENV TF_NEED_CLANG=0")
+
+    # TennsorFlow 2.18.0 does not support TensorRT
+    # https://github.com/tensorflow/tensorflow/blob/r2.17/RELEASE.md
+    # "TensorRT support: this is the last release supporting TensorRT. It will be removed in the next release."
+#    if isNotBlank(args.TensorRT):
+#        tmp = replace_line(tmp, "ENV TF_NEED_TENSORRT", f"ENV TF_NEED_TENSORRT=1")
 
     return tmp
 
@@ -328,19 +354,15 @@ def return_BUILD_TORCH(cuda_version, pytorch_version, indir, args):
     if os.path.isfile(patch):
         dfile = f"{args.destdir}/torchvision.patch"
         shutil.copy(patch, f"{args.destdir}/torchvision.patch")
-        # replace / with ___
-        dfile = dfile.replace("/", "___")
-        shutil.copy(patch, f"{dfile}.temp")
-        tmp = replace_line(tmp, "COPY torchvision.patch", f"COPY {dfile}.temp /tmp/torchvision.patch")
+        dfilename = os.path.basename(patch)
+        tmp = replace_line(tmp, "COPY torchvision.patch", "COPY torchvision.patch /tmp/torchvision.patch")
     tmp = replace_line(tmp, "ENV CTPO_TORCHAUDIO=",  f"ENV CTPO_TORCHAUDIO={args.torchaudio_version}")
     patch = f"{indir}/PATCH_TORCHAUDIO.{mode}.{args.torchaudio_version}"
     if os.path.isfile(patch):
         dfile = f"{args.destdir}/torchaudio.patch"
         shutil.copy(patch, f"{args.destdir}/torchaudio.patch")
-        # replace / with ___
-        dfile = dfile.replace("/", "___")
-        shutil.copy(patch, f"{dfile}.temp")
-        tmp = replace_line(tmp, "COPY torchaudio.patch", f"COPY {dfile}.temp /tmp/torchaudio.patch")
+        dfilename = os.path.basename(patch)
+        tmp = replace_line(tmp, "COPY torchaudio.patch", "COPY torchaudio.patch /tmp/torchaudio.patch")
     tmp = replace_line(tmp, "ENV CTPO_TORCHDATA=", f"ENV CTPO_TORCHDATA={args.torchdata_version}")
 #    tmp = replace_line(tmp, "ENV CTPO_TORCHTEXT=",  f"ENV CTPO_TORCHTEXT={args.torchtext_version}")
     
@@ -362,7 +384,7 @@ def build_dockerfile(input, indir, release, tensorflow_version, pytorch_version,
     env += f"CTPO_FROM={repl_v}\n"
 
     #==BOOTSTRAP_NVIDIA==#
-    repl = return_BOOTSTRAP_NVIDIA(cuda_version, cudnn_install, indir)
+    repl = return_BOOTSTRAP_NVIDIA(cuda_version, cudnn_install, indir, args)
     dockertxt = replace_line(dockertxt, "#==BOOTSTRAP_NVIDIA==#", repl)
 
     #==CTPO_NUMPROC==#
@@ -402,6 +424,10 @@ def build_dockerfile(input, indir, release, tensorflow_version, pytorch_version,
     #==PIP_KERAS==#
     repl = return_PIP_KERAS(tensorflow_version, indir)
     dockertxt = replace_line(dockertxt, "#==PIP_KERAS==#", repl)
+
+    #==APT_PIP_TENSORRT==#
+    repl = return_APT_PIP_TENSORRT(args.TensorRT, indir)
+    dockertxt = replace_line(dockertxt, "#==APT_PIP_TENSORRT==#", repl)
 
     #==BUILD_TensorFlow==#
     repl = return_BUILD_TensorFlow(tensorflow_version, cuda_version, dnn_used, indir, args)
@@ -446,8 +472,8 @@ def main():
     parser.add_argument("--tag", help="Container image tag", required=True)
     parser.add_argument("--release", help="Release version", required=True)
     parser.add_argument("--destdir", help="Destination directory", required=True)
-    parser.add_argument("--indir", help="Input directory for some replacement snippets", default="ubuntu22.04/Snippets")
-    parser.add_argument("--input", help="Input Dockerfile", default="ubuntu22.04/Dockerfile.base")
+    parser.add_argument("--indir", help="Input directory for some replacement snippets", default="ubuntu24.04/Snippets")
+    parser.add_argument("--input", help="Input Dockerfile", default="ubuntu24.04/Dockerfile.base")
     parser.add_argument("--cuda_ver", help="CUDA version(s) list (GPU only, | separated)", default="")
     parser.add_argument("--dnn_arch", help="DNN architecture build(s) list (GPU only, | separated)", default="")
     parser.add_argument("--cudnn_ver", help="CUDNN version (GPU only, if specified force pull of cuddn from the internet versus using a FROM with cudnn)", default="")
@@ -466,6 +492,8 @@ def main():
     parser.add_argument("--torchdata_version",  help="TorchData version",  default="")
 #    parser.add_argument("--torchtext_version",  help="TorchText version",  default="")
     parser.add_argument("--clang_version", help="Clang version", default="")
+    parser.add_argument("--copyfile", help="Copy file to destination directory", nargs='+', default=[])
+    parser.add_argument("--TensorRT", help="Enable TensorRT (use any non-empty string to enable)", default="")
     args = parser.parse_args()
 
     if not os.path.isfile(args.input):
@@ -554,6 +582,12 @@ def main():
         if args.cudnn_ver:
             if isNotBlank(args.cudnn_ver):
                 cudnn_install = args.cudnn_ver
+
+    if args.copyfile:
+        for f in args.copyfile:
+            if not os.path.isfile(f):
+                error_exit(f"Error: Copy file {f} does not exist")
+            shutil.copy(f, args.destdir)
 
     (dockertxt, env) = build_dockerfile(args.input, args.indir, args.release, tensorflow_version, pytorch_version, cuda_version, dnn_used, cudnn_install, opencv_version, args.verbose, args)
 

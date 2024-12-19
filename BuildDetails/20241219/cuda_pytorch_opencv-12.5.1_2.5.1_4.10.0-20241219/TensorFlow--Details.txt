@@ -1,0 +1,14 @@
+  CTPO_FROM               : nvidia/cuda:12.5.1-devel-ubuntu24.04
+cd BuildDetails/20241219/cuda_pytorch_opencv-12.5.1_2.5.1_4.10.0-20241219
+docker buildx ls | grep -q ctpo-202412wip_builder && echo "builder already exists -- to delete it, use: docker buildx rm ctpo-202412wip_builder" || docker buildx create --name ctpo-202412wip_builder --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=256000000
+docker buildx use ctpo-202412wip_builder || exit 1
+BUILDX_EXPERIMENTAL=1  docker buildx debug --on=error build --progress plain --platform linux/amd64  \
+  --build-arg CTPO_NUMPROC="32" \
+  --tag="cuda_pytorch_opencv:12.5.1_2.5.1_4.10.0-20241219" \
+  -f Dockerfile \
+  --load \
+  .
+
+
+***** TensorFlow configuration:
+No TensorFlow built

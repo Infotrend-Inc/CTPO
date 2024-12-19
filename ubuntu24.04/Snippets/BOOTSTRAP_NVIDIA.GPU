@@ -1,0 +1,12 @@
+# Adapted from https://gitlab.com/nvidia/container-images/cuda/-/blob/master/dist/12.2.2/ubuntu2204/devel/cudnn8/Dockerfile
+ENV NV_CUDNN_VERSION=
+ENV NV_CUDNN_PACKAGE_BASENAME=
+ENV NV_CUDA_ADD=
+ENV NV_CUDNN_PACKAGE="$NV_CUDNN_PACKAGE_BASENAME-$NV_CUDA_ADD=$NV_CUDNN_VERSION"
+ENV NV_CUDNN_PACKAGE_DEV="$NV_CUDNN_PACKAGE_BASENAME-dev-$NV_CUDA_ADD=$NV_CUDNN_VERSION"
+LABEL com.nvidia.cudnn.version="${NV_CUDNN_VERSION}"
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+  ${NV_CUDNN_PACKAGE} \
+  ${NV_CUDNN_PACKAGE_DEV} \
+  && apt-mark hold ${NV_CUDNN_PACKAGE_BASENAME}-${NV_CUDA_ADD}

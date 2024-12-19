@@ -4,6 +4,8 @@ import os
 import sys
 import json
 
+default_skip_list = ['TensorRT']
+
 def error_exit(msg):
     print(msg)
     sys.exit(1)
@@ -103,10 +105,14 @@ def process_BuildDetails(dir):
     release_list = get_dir_list(dir)
 
     all_build_info = {}
-    for release in release_list:
+    for release in sorted(release_list):
         print(f" -- Getting build info list for release: {release}")
         build_info_list = get_dir_list(os.path.join(dir, release))
-        for build_info_dir in build_info_list:
+        for build_info_dir in sorted(build_info_list):
+            if any(w in build_info_dir for w in default_skip_list):
+                print(f" |  -- SKIPPING build info for build: {build_info_dir}")
+                continue
+
             print(f" |  -- Getting build info for build: {build_info_dir}")
             build_info_file = os.path.join(dir, release, build_info_dir, 'BuildInfo.txt')
             if os.path.isfile(build_info_file):
