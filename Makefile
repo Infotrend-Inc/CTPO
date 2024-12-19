@@ -4,7 +4,10 @@ SHELL := /bin/bash
 .NOTPARALLEL:
 
 # Release to match data of Dockerfile and follow YYYYMMDD pattern
-CTPO_RELEASE=202412wip
+CTPO_RELEASE=20241219
+BUILDX_RELEASE=${CTPO_RELEASE}
+# Attempt to use cache for the buildx images, change value to create clean buildx base
+BUILDX_RELEASE=202412wip
 
 # The default is not to build OpenCV non-free or build FFmpeg with libnpp, as those would make the images unredistributable 
 # Replace "free" by "unredistributable" if you need to use those for a personal build
@@ -245,7 +248,7 @@ actual_build:
 	@$(eval VAR_FF="${BUILD_DESTDIR}/FFmpeg--Details.txt")
 	@$(eval VAR_PT="${BUILD_DESTDIR}/PyTorch--Details.txt")
 	@${eval CTPO_DESTIMAGE="${CTPO_NAME}:${CTPO_FULLTAG}"}
-	@${eval CTPO_BUILDX="ctpo-${CTPO_RELEASE}_builder"}
+	@${eval CTPO_BUILDX="ctpo-${BUILDX_RELEASE}_builder"}
 	@mkdir -p ${VAR_DD}
 	@echo ""
 	@echo "  CTPO_FROM               : ${CTPO_FROM}" | tee ${VAR_CV} | tee ${VAR_TF} | tee ${VAR_FF} | tee ${VAR_PT} | tee ${VAR_PY}
@@ -258,11 +261,14 @@ actual_build:
 	@echo "cd ${BUILD_DESTDIR}" > ${VAR_NT}.cmd
 	@echo "docker buildx ls | grep -q ${CTPO_BUILDX} && echo \"builder already exists -- to delete it, use: docker buildx rm ${CTPO_BUILDX}\" || docker buildx create --name ${CTPO_BUILDX} --driver-opt env.BUILDKIT_STEP_LOG_MAX_SIZE=256000000"  >> ${VAR_NT}.cmd
 	@echo "docker buildx use ${CTPO_BUILDX} || exit 1" >> ${VAR_NT}.cmd
+#	@echo "echo \"===== Build Start time: \" `date`" >> ${VAR_NT}.cmd
 	@echo "BUILDX_EXPERIMENTAL=1 ${DOCKER_PRE} docker buildx debug --on=error build --progress plain --platform linux/amd64 ${DOCKER_BUILD_ARGS} \\" >> ${VAR_NT}.cmd
 	@echo "  --build-arg CTPO_NUMPROC=\"$(CTPO_NUMPROC)\" \\" >> ${VAR_NT}.cmd
 	@echo "  --tag=\"${CTPO_DESTIMAGE}\" \\" >> ${VAR_NT}.cmd
 	@echo "  -f Dockerfile \\" >> ${VAR_NT}.cmd
+	@echo "  --load \\" >> ${VAR_NT}.cmd
 	@echo "  ." >> ${VAR_NT}.cmd
+#	@echo "echo \"===== Build End time: \" `date`" >> ${VAR_NT}.cmd
 	@cat ${VAR_NT}.cmd | tee ${VAR_NT}.log.temp | tee -a ${VAR_CV} | tee -a ${VAR_TF} | tee -a ${VAR_FF} | tee -a ${VAR_PT} | tee -a ${VAR_PY}
 	@echo "" | tee -a ${VAR_NT}.log.temp
 	@echo "Press Ctl+c within 5 seconds to cancel"
@@ -327,6 +333,15 @@ force_pt_check:
 force_cv_check:
 	@echo "cv_hw"
 	@${DOCKER_PRE} docker run --rm -v `pwd`:/iti -v `pwd`/tools/skip_disclaimer.sh:/opt/nvidia/nvidia_entrypoint.sh --gpus all ${CTPO_DESTIMAGE} python3 /iti/test/cv_hw.py | tee -a ${VAR_NT}.testlog; exit "$${PIPESTATUS[0]}"
+
+##### buildx rm
+buildx_rm:
+	@docker buildx ls | grep -q ctpo-${BUILDX_RELEASE}_builder || echo "builder does not exist"
+	echo "** About to delete buildx: ctpo-${BUILDX_RELEASE}_builder"
+	@echo "Press Ctl+c within 5 seconds to cancel"
+	@for i in 5 4 3 2 1; do echo -n "$$i "; sleep 1; done; echo ""
+	@docker buildx rm ctpo-${BUILDX_RELEASE}_builder
+
 
 ##########
 ##### Build Details
@@ -465,8 +480,10 @@ docker_tag_push_core:
 #  % make build_ctpo
 # - Build ALL the TPO images
 #  % make build_tpo
+# - Build the TensorRT image
+#  % make build_ctpo_tensorrt
 # - Manually check that all the *.testlog contain valid information
-#  % less *.testlog
+#  % bat *.testlog
 # - Build the README-BuildDetails.md file
 #  % make dump_builddetails
 # - Add TAG_RELEASE tag to all the built images
@@ -499,3 +516,5 @@ docker_tag_push_core:
 #  % git tag YYYYMMDD
 #  % git push origin YYYYMMDD
 # - Create a release on GitHub using the YYYYMMDD tag, add the release notes, and publish
+# - delete the created docker builder (find its name then REPLACE it)
+#  % make buildx_rm
