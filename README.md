@@ -6,6 +6,9 @@ Latest release: 20241219
 
 The tool's purpose is to enable developers, ML and CV enthusiasts to build and test solutions `FROM` a docker container, allowing fast prototyping and release of code to the community.
 
+We have published examples of use of the tool to support efforts in Computer Vision, Data Science, Machine Learning and Natural Language Processing.
+Go to https://github.com/Infotrend-Inc/CTPO-Demo_Projects for details.
+
 - [1. Builds and Notes](#1-builds-and-notes)
   - [1.1. Tag naming conventions](#11-tag-naming-conventions)
   - [1.2. Building](#12-building)
